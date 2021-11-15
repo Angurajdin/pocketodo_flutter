@@ -1,10 +1,11 @@
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
+import 'package:flutter/services.dart';
 
 class TaskPage extends StatelessWidget {
 
@@ -197,6 +198,52 @@ class TaskPage extends StatelessWidget {
                           letterSpacing: 0.42,
                         ),
                       ),
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 6,
+                        offset: Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20.0,),
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                  child: Row(
+                    children: <Widget>[
+                      SizedBox(width: 10.0,),
+                      Expanded(
+                        child: Text(
+                          data['taskLink'],
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            letterSpacing: 0.42,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: (){
+                          Clipboard.setData(ClipboardData(text: data['taskLink']));
+                          showToast('Link Copied',
+                              context: context,
+                              animation: StyledToastAnimation.scale,
+                              reverseAnimation: StyledToastAnimation.fade,
+                              position: StyledToastPosition.bottom,
+                              animDuration: Duration(seconds: 1),
+                              duration: Duration(seconds: 4),
+                              curve: Curves.elasticOut,
+                              reverseCurve: Curves.linear);
+                        },
+                        icon: Icon(Icons.copy),
+                      ),
+                      SizedBox(width: 5.0,),
                     ],
                   ),
                   decoration: BoxDecoration(

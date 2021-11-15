@@ -224,7 +224,7 @@ packages:
       name: firebase_dynamic_links
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.11"
+    version: "3.0.1"
   floating_bottom_navigation_bar:
     dependency: "direct main"
     description:

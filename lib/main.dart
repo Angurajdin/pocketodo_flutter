@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pocketodo/screens/Authentication/login.dart';
@@ -64,6 +65,11 @@ class _WrapperState extends State<Wrapper> {
   final ValueNotifier<bool> isDeviceConnected = ValueNotifier(false);
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {
@@ -74,6 +80,7 @@ class _WrapperState extends State<Wrapper> {
         isDeviceConnected.value = false;
       }
     });
+
 
     return ValueListenableBuilder(
         valueListenable: isDeviceConnected,
@@ -89,9 +96,6 @@ class _WrapperState extends State<Wrapper> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Loading();
                 }
-
-                // print("data =    ${snapshot.data}");
-                // print("data =    ${snapshot.hasData}");
 
                 if(snapshot.hasData==false || snapshot.data==null){
                   return initPage();
@@ -127,7 +131,16 @@ class _WrapperState extends State<Wrapper> {
           }
           return Scaffold(
               body: Center(
-                  child: Text("No internet !")
+                  child: AlertDialog(
+                    title: const Text('No Internet'),
+                    content: const Text('Please, connect with the internet'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Try Again'),
+                        child: const Text('Try again'),
+                      ),
+                    ],
+                  ),
               )
           );
         }

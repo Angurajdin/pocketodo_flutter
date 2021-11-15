@@ -1,3 +1,5 @@
+import 'package:pocketodo/screens/home/taskPage.dart';
+import 'package:pocketodo/services/createDynamicLink.dart';
 import 'package:pocketodo/shared/loading.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -73,6 +75,8 @@ class AddTask extends StatefulWidget {
 
 class _AddTaskState extends State<AddTask> {
 
+  String url = "";
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController title = new TextEditingController();
   final format = DateFormat("dd-MM-yyyy HH:mm");
@@ -87,6 +91,49 @@ class _AddTaskState extends State<AddTask> {
   List<String> selectedTags = [];
   CollectionReference taskCollectionRef = FirebaseFirestore.instance.collection('tasks');
 
+  //Retrieve dynamic link firebase.
+  Future<void> initDynamicLinks() async {
+    final PendingDynamicLinkData? data =
+    await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri? deepLink = data?.link;
+
+    if (deepLink != null) {
+      handleDynamicLink(deepLink);
+    }
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData? dynamicLink) async {
+          final Uri? deepLink = dynamicLink?.link;
+
+          if (deepLink != null) {
+            handleDynamicLink(deepLink);
+          }
+        }, onError: (OnLinkErrorException e) async {
+      print(e.message);
+    });
+  }
+
+  Future<void> handleDynamicLink(Uri url) async{
+    List<String> separatedString = [];
+    separatedString.addAll(url.path.split('/'));
+    if (separatedString[1] == "task") {
+      await FirebaseFirestore.instance
+          .collection('tasks')
+          .doc(separatedString[2])
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          // print('Document exists on the database');
+          Navigator.pushNamed(context, '/taskpage',
+              arguments: documentSnapshot.data());
+        }
+        else{
+          print('Document not exists on the database');
+        }
+      });
+
+    }
+  }
+
 
   Future<List<Language>> getLanguages(String query) async {
 
@@ -95,14 +142,18 @@ class _AddTaskState extends State<AddTask> {
         .toList();
   }
 
-  Future<void> addTask() {
+  Future<void> addTask() async {
     // Call the user's CollectionReference to add a new user
 
     for(dynamic a in _selectedLanguages){
       selectedTags.add(a.name);
     }
 
-    final notificationId = random.nextInt(pow(2, 31).toInt());
+    try {
+
+    } catch (e) {
+      print(e);
+    }
 
     final taskData = {
       "title": title.text.toString().trim(),
@@ -121,14 +172,16 @@ class _AddTaskState extends State<AddTask> {
       "deleted": false,
       "important": false,
       "completed": false,
+      "taskLink": ""
     };
 
     return taskCollectionRef
         .add(taskData)
         .then((value) async{
             // task added
-            await taskCollectionRef.doc(value.id).update({"notificationId": value.id});
-            Notify(selectedDateTime, value.id, {...taskData, "notificationId": value.id});
+            url = await createDynamicLink.buildDynamicLink(value.id);
+            await taskCollectionRef.doc(value.id).update({"notificationId": value.id, "taskLink": url});
+            Notify(selectedDateTime, value.id, {...taskData, "notificationId": value.id, "taskLink": url});
             Navigator.pop(context);
             Navigator.pop(context);
           }
@@ -157,6 +210,8 @@ class _AddTaskState extends State<AddTask> {
   void initState() {
 
     userTags = [];
+
+    initDynamicLinks();
 
     FirebaseFirestore.instance
         .collection('users')
