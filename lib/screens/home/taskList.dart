@@ -51,22 +51,27 @@ class _TaskListState extends State<TaskList> {
           .where('members',
           arrayContainsAny: [FirebaseAuth.instance.currentUser!.email])
           .where("completed", isEqualTo: true)
+          .where("deleted", isEqualTo: false)
           .orderBy('datetime', descending: true)
           .snapshots();
-    } else if (widget.queryString == "today") {
+    }
+    else if (widget.queryString == "today") {
       queryCondition = FirebaseFirestore.instance
           .collection('tasks')
           .where('members',
           arrayContainsAny: [FirebaseAuth.instance.currentUser!.email])
-          .where('date', isEqualTo: dateMonthYear.format(DateTime.now()))
-          .orderBy('datetime')
+          //.where('date', isEqualTo: dateMonthYear.format(DateTime.now()))
+          .where("deleted", isEqualTo: false)
+          .orderBy('datetime', descending: true)
           .snapshots();
-    } else {
+    }
+    else {
       queryCondition = FirebaseFirestore.instance
           .collection('tasks')
           .where('members',
           arrayContainsAny: [FirebaseAuth.instance.currentUser!.email])
           .where('datetime', isGreaterThan: DateTime.now())
+          .where("deleted", isEqualTo: false)
           .orderBy('datetime')
           .snapshots();
     }
@@ -423,7 +428,7 @@ class _TaskListState extends State<TaskList> {
                               await AwesomeNotifications().cancel(data['notificationId']);
 
                               await FirebaseFirestore.instance
-                                  .collection('tasks').doc(snapshot.data!.docs[index].id).delete();
+                                  .collection('tasks').doc(snapshot.data!.docs[index].id).update({"deleted": true});
                             },
                           ),
                         ],
@@ -593,7 +598,7 @@ class _TaskListState extends State<TaskList> {
                           await AwesomeNotifications().cancelSchedulesByGroupKey(data['notificationId']);
 
                           await FirebaseFirestore.instance
-                              .collection('tasks').doc(snapshot.data!.docs[index].id).delete();
+                              .collection('tasks').doc(snapshot.data!.docs[index].id).update({"deleted": true});
                         },
                       ),
                     ],

@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:pocketodo/screens/home/bottomFloatingNav.dart';
 import 'package:pocketodo/screens/home/sideBar.dart';
 import 'package:pocketodo/screens/home/taskList.dart';
@@ -20,10 +22,32 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
 
   var isDialOpen = ValueNotifier<bool>(false);
+  var isDeviceConnected = false;
+  var subscription;
 
+  Future<void> checkInternetConnection() async{
+    bool result = await InternetConnectionChecker().hasConnection;
+    if(result == true) {
+      isDeviceConnected = true;
+    } else {
+      isDeviceConnected = false;
+    }
+
+    // subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {
+    //   if(result != ConnectivityResult.none) {
+    //     setState(() async {
+    //       isDeviceConnected = await InternetConnectionChecker().hasConnection;
+    //     });
+    //   }
+    // });
+
+
+  }
 
 @override
-  void initState() {
+  void initState(){
+
+    checkInternetConnection();
     super.initState();
   }
 
@@ -73,6 +97,10 @@ class _TodoListState extends State<TodoList> {
         }
       },
     );
+
+    if(isDeviceConnected==false){
+      print("no internet");
+    }
 
     AwesomeNotifications().actionStream.listen(
             (receivedNotification) async{

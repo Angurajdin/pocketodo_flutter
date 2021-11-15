@@ -68,7 +68,7 @@ class initPage extends StatelessWidget {
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   elevation: 0,
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 80, vertical: 12),
                   backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(35),),),

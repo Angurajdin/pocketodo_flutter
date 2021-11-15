@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:pocketodo/screens/Authentication/login.dart';
 import 'package:pocketodo/screens/home/CategoryPage.dart';
 import 'package:pocketodo/screens/home/addtask.dart';
@@ -42,60 +45,93 @@ Future<void> main() async {
       ]
   );
 
-  runApp(Wrapper());
+  runApp(MaterialApp(
+    home: Wrapper(),
+  ));
 
 }
 
-class Wrapper extends StatelessWidget {
+
+class Wrapper extends StatefulWidget {
   const Wrapper({Key? key}) : super(key: key);
+
+  @override
+  _WrapperState createState() => _WrapperState();
+}
+
+class _WrapperState extends State<Wrapper> {
+
+  final ValueNotifier<bool> isDeviceConnected = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
 
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (BuildContext context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Something went wrong');
-        }
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {
+      if(result != ConnectivityResult.none) {
+        isDeviceConnected.value = await InternetConnectionChecker().hasConnection;
+      }
+      else if(result == ConnectivityResult.none){
+        isDeviceConnected.value = false;
+      }
+    });
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Loading();
-        }
+    return ValueListenableBuilder(
+        valueListenable: isDeviceConnected,
+        builder: (context, bool val, Widget? child) {
+          if(val){
+            return new StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (BuildContext context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Something went wrong');
+                }
 
-        // print("data =    ${snapshot.data}");
-        // print("data =    ${snapshot.hasData}");
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Loading();
+                }
 
-        if(snapshot.hasData==false || snapshot.data==null){
-          return initPage();
-        }
-        else{
+                // print("data =    ${snapshot.data}");
+                // print("data =    ${snapshot.hasData}");
 
-          return new Builder(builder: (context) {
-
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(fontFamily: 'rubik'),
-              home: TodoList(),
-              routes: {
-                '/initpage': (context) => initPage(),
-                '/signup': (context) => Signup(),
-                '/login': (context) => Login(),
-                '/loading': (context) => Loading(),
-                '/todolist': (context) => TodoList(),
-                '/addtask': (context) => AddTask(),
-                '/category': (context) => CategoryPage(),
-                '/notification': (context) => NotificationPage(),
-                '/today': (context) => TodayTask(),
-                '/completed': (context) => CompletedTask(),
-                '/categorytask': (context) => CategoryTask(),
-                '/taskpage': (context) => TaskPage(),
-                '/groups': (context) => Groups(),
+                if(snapshot.hasData==false || snapshot.data==null){
+                  return initPage();
+                }
+                else{
+                  return new Builder(builder: (context) {
+                    return OverlaySupport.global(
+                      child: MaterialApp(
+                        debugShowCheckedModeBanner: false,
+                        theme: ThemeData(fontFamily: 'rubik'),
+                        home: TodoList(),
+                        routes: {
+                          '/initpage': (context) => initPage(),
+                          '/signup': (context) => Signup(),
+                          '/login': (context) => Login(),
+                          '/loading': (context) => Loading(),
+                          '/todolist': (context) => TodoList(),
+                          '/addtask': (context) => AddTask(),
+                          '/category': (context) => CategoryPage(),
+                          '/notification': (context) => NotificationPage(),
+                          '/today': (context) => TodayTask(),
+                          '/completed': (context) => CompletedTask(),
+                          '/categorytask': (context) => CategoryTask(),
+                          '/taskpage': (context) => TaskPage(),
+                          '/groups': (context) => Groups(),
+                        },
+                      ),
+                    );
+                  });
+                }
               },
             );
-          });
+          }
+          return Scaffold(
+              body: Center(
+                  child: Text("No internet !")
+              )
+          );
         }
-      },
     );
+
   }
 }
