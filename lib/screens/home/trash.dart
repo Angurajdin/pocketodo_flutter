@@ -1,29 +1,29 @@
+import 'package:flutter/material.dart';
 import 'package:pocketodo/screens/home/sideBar.dart';
 import 'package:pocketodo/screens/home/taskList.dart';
 import 'package:pocketodo/shared/constants.dart';
-import 'package:flutter/material.dart';
 
 
-class TodayTask extends StatefulWidget {
-  const TodayTask({Key? key}) : super(key: key);
+class TrashPage extends StatefulWidget {
+  const TrashPage({Key? key}) : super(key: key);
 
   @override
-  _TodayTaskState createState() => _TodayTaskState();
+  _TrashPageState createState() => _TrashPageState();
 }
 
-class _TodayTaskState extends State<TodayTask> {
+class _TrashPageState extends State<TrashPage> {
   @override
   Widget build(BuildContext context) {
     return Builder(
       builder: (context)=> Scaffold(
         appBar: AppBar(
-          title: Text("Today's Tasks"),
+          title: Text("Deleted Tasks"),
           centerTitle: true,
           titleSpacing: 1.0,
           backgroundColor: mediumPurple,
         ),
         drawer: DrawerPage(),
-        body: TaskList(queryString: "today", dataNullMsge: "No task is created for today till now, create a new one by press + button",category: "",),
+        body: TaskList(queryString: "trash", dataNullMsge: "Trash is Empty",category: "",),
       ),
     );
   }

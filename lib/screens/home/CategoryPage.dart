@@ -18,14 +18,6 @@ class _CategoryPageState extends State<CategoryPage> {
 
   late dynamic nav;
 
-  // @override
-  // void initState() {
-  //
-  //   nav = bottomFloatingNav(currentIndex: 1,);
-  //
-  //   super.initState();
-  // }
-
   @override
   void dispose() {
     super.dispose();
@@ -62,7 +54,7 @@ class _CategoryPageState extends State<CategoryPage> {
           if (snapshot.connectionState == ConnectionState.done) {
 
             Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-            print(data);
+            // print(data);
             return ListView(
                 padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
                 children:  List<Widget>.generate(data['tags'].length, (index)=>

@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:flutter_tagging/flutter_tagging.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -46,12 +45,12 @@ void Notify(selectedDateTime, id, taskData) async{
 
   await AwesomeNotifications().createNotification(
     content: NotificationContent(
-      id: random.nextInt(pow(2, 31).toInt()),
-      groupKey: id.toString(),
-      channelKey: 'pocketodo',
-      title: taskData['title'],
-      body: taskDesc,
-      payload: {"id": id.toString()}
+        id: random.nextInt(pow(2, 31).toInt()),
+        groupKey: id.toString(),
+        channelKey: 'pocketodo',
+        title: taskData['title'],
+        body: taskDesc,
+        payload: {"id": id.toString()}
     ),
     schedule: NotificationCalendar.fromDate(date: selectedDateTime),
     actionButtons: [
@@ -66,73 +65,29 @@ void Notify(selectedDateTime, id, taskData) async{
 }
 
 
-class AddTask extends StatefulWidget {
-  const AddTask({Key? key}) : super(key: key);
+class EditTask extends StatefulWidget {
+  const EditTask({Key? key}) : super(key: key);
 
   @override
-  _AddTaskState createState() => _AddTaskState();
+  _EditTaskState createState() => _EditTaskState();
 }
 
-class _AddTaskState extends State<AddTask> {
-
-  String url = "";
+class _EditTaskState extends State<EditTask> {
 
   final _formKey = GlobalKey<FormState>();
   TextEditingController title = new TextEditingController();
   final format = DateFormat("dd-MM-yyyy HH:mm");
   final DateFormat dateMonthYear = DateFormat('dd-MM-yyyy');
-  
+  dynamic data = null;
+
   double _currentSliderValue = 1;
   dynamic selectedDateTime;
   String _selectedValuesJson = 'Nothing to show';
   String description = "", link = "";
-  late final List<Language> _selectedLanguages;
+  late List<Language> _selectedLanguages;
   late List<Language> userTags = [];
   List<String> selectedTags = [];
   CollectionReference taskCollectionRef = FirebaseFirestore.instance.collection('tasks');
-
-  //Retrieve dynamic link firebase.
-  Future<void> initDynamicLinks() async {
-    final PendingDynamicLinkData? data =
-    await FirebaseDynamicLinks.instance.getInitialLink();
-    final Uri? deepLink = data?.link;
-
-    if (deepLink != null) {
-      handleDynamicLink(deepLink);
-    }
-    FirebaseDynamicLinks.instance.onLink(
-        onSuccess: (PendingDynamicLinkData? dynamicLink) async {
-          final Uri? deepLink = dynamicLink?.link;
-
-          if (deepLink != null) {
-            handleDynamicLink(deepLink);
-          }
-        }, onError: (OnLinkErrorException e) async {
-      print(e.message);
-    });
-  }
-
-  Future<void> handleDynamicLink(Uri url) async{
-    List<String> separatedString = [];
-    separatedString.addAll(url.path.split('/'));
-    if (separatedString[1] == "task") {
-      await FirebaseFirestore.instance
-          .collection('tasks')
-          .doc(separatedString[2])
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          // print('Document exists on the database');
-          Navigator.pushNamed(context, '/taskpage',
-              arguments: documentSnapshot.data());
-        }
-        else{
-          print('Document not exists on the database');
-        }
-      });
-
-    }
-  }
 
 
   Future<List<Language>> getLanguages(String query) async {
@@ -142,7 +97,7 @@ class _AddTaskState extends State<AddTask> {
         .toList();
   }
 
-  Future<void> addTask() async {
+  Future<void> updateTask() async {
     // Call the user's CollectionReference to add a new user
 
     for(dynamic a in _selectedLanguages){
@@ -150,54 +105,51 @@ class _AddTaskState extends State<AddTask> {
     }
 
     final taskData = {
-      "id": null,
-      "title": title.text.toString(),
-      "description": description,
+      "title": title.text.toString().trim(),
+      "description": description.trim(),
       "datetime": selectedDateTime,
       "date": dateMonthYear.format(selectedDateTime),
       "link": link.trim(),
       "priority": _currentSliderValue,
       "tags": selectedTags,
-      "members": [FirebaseAuth.instance.currentUser!.email],
-      "assigned": [],
-      "declined": [],
-      "createdBy": FirebaseAuth.instance.currentUser!.email,
-      "createdAt": DateTime.now(),
-      "modifiedAt": null,
+      "modifiedAt": DateTime.now(),
       "deleted": false,
       "important": false,
-      "completed": false,
-      "taskLink": ""
     };
 
     return taskCollectionRef
-        .add(taskData)
+        .doc(data['id'])
+        .update(taskData)
         .then((value) async{
-            // task added
-            url = await createDynamicLink.buildDynamicLink(value.id);
-            await taskCollectionRef.doc(value.id).update({"id": value.id, "notificationId": value.id, "taskLink": url});
-            Notify(selectedDateTime, value.id, {...taskData, "id": value.id, "notificationId": value.id, "taskLink": url});
-            Navigator.pop(context);
-            Navigator.pop(context);
-          }
-        )
+      // task added
+
+        Notify(selectedDateTime, data['id'], {...taskData});
+        Navigator.pop(context);
+        Navigator.pop(context);
+        data = await taskCollectionRef
+            .doc(data['id']).get();
+
+
+        Navigator.popAndPushNamed(context, '/taskpage', arguments: data.data() as Map<String, dynamic> );
+      }
+    )
         .catchError((error) {
-          print("Failed to add task: $error");
-          Navigator.pop(context);
-          showToast(error.toString(),
-              context: context,
-              animation: StyledToastAnimation.slideFromTop,
-              reverseAnimation: StyledToastAnimation.slideToTop,
-              position: StyledToastPosition.top,
-              startOffset: Offset(0.0, -3.0),
-              reverseEndOffset: Offset(0.0, -3.0),
-              duration: Duration(seconds: 5),
-              //Animation duration   animDuration * 2 <= duration
-              animDuration: Duration(seconds: 1),
-              curve: Curves.elasticOut,
-              backgroundColor: Colors.redAccent,
-              reverseCurve: Curves.fastOutSlowIn);
-        });
+      print("Failed to add task: $error");
+      Navigator.pop(context);
+      showToast(error.toString(),
+          context: context,
+          animation: StyledToastAnimation.slideFromTop,
+          reverseAnimation: StyledToastAnimation.slideToTop,
+          position: StyledToastPosition.top,
+          startOffset: Offset(0.0, -3.0),
+          reverseEndOffset: Offset(0.0, -3.0),
+          duration: Duration(seconds: 5),
+          //Animation duration   animDuration * 2 <= duration
+          animDuration: Duration(seconds: 1),
+          curve: Curves.elasticOut,
+          backgroundColor: Colors.redAccent,
+          reverseCurve: Curves.fastOutSlowIn);
+    });
 
   }
 
@@ -205,8 +157,6 @@ class _AddTaskState extends State<AddTask> {
   void initState() {
 
     userTags = [];
-
-    initDynamicLinks();
 
     FirebaseFirestore.instance
         .collection('users')
@@ -224,6 +174,7 @@ class _AddTaskState extends State<AddTask> {
     });
     super.initState();
     _selectedLanguages = [];
+
   }
 
   @override
@@ -238,6 +189,21 @@ class _AddTaskState extends State<AddTask> {
 
   @override
   Widget build(BuildContext context) {
+
+    if(data==null){
+      data = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+      title.text = data['title'];
+      _currentSliderValue = data['priority'].toDouble();
+      selectedDateTime = DateTime.now();
+      description = data['description'];
+      link = data['link'];
+      data['tags'].forEach((val){
+        _selectedLanguages.add(Language(name: val));
+      });
+    }
+
+
     return Scaffold(
       // backgroundColor: lightPurple,
       // resizeToAvoidBottomInset: false,
@@ -290,7 +256,8 @@ class _AddTaskState extends State<AddTask> {
                     style: formTextInputStyle,
                   ),
                   SizedBox(height: 5.0,),
-                  TextField(
+                  TextFormField(
+                    initialValue: description,
                     decoration: formTextInputFieldDecoration,
                     maxLines: 3,
                     onChanged: (val)=> setState(() {
@@ -334,8 +301,6 @@ class _AddTaskState extends State<AddTask> {
                       }
                     },
                   ),
-
-
                   SizedBox(height: 15.0,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -433,7 +398,8 @@ class _AddTaskState extends State<AddTask> {
                     style: formTextInputStyle,
                   ),
                   SizedBox(height: 5.0,),
-                  TextField(
+                  TextFormField(
+                    initialValue: link,
                     decoration: formTextInputFieldDecoration,
                     onChanged: (val)=> setState(() {
                       link = val;
@@ -482,7 +448,7 @@ class _AddTaskState extends State<AddTask> {
                             ),
                           ),
                           child: Text(
-                            'Create Task',
+                            'Update',
                             style: TextStyle(
                                 fontSize: 20,
                                 color: Colors.white,
@@ -494,7 +460,7 @@ class _AddTaskState extends State<AddTask> {
 
                               if(selectedDateTime!=null && selectedDateTime.isAfter(DateTime.now())){
                                 Navigator.pushNamed(context, '/loading');
-                                addTask();
+                                updateTask();
 
                               }
                               else{

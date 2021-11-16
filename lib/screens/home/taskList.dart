@@ -65,6 +65,25 @@ class _TaskListState extends State<TaskList> {
           .orderBy('datetime', descending: true)
           .snapshots();
     }
+    else if (widget.queryString == "important") {
+      queryCondition = FirebaseFirestore.instance
+          .collection('tasks')
+          .where('members',
+          arrayContainsAny: [FirebaseAuth.instance.currentUser!.email])
+          .where("important", isEqualTo: true)
+          .where("deleted", isEqualTo: false)
+          .orderBy('datetime', descending: true)
+          .snapshots();
+    }
+    else if (widget.queryString == "trash") {
+      queryCondition = FirebaseFirestore.instance
+          .collection('tasks')
+          .where('members',
+          arrayContainsAny: [FirebaseAuth.instance.currentUser!.email])
+          .where("deleted", isEqualTo: true)
+          .orderBy('datetime', descending: true)
+          .snapshots();
+    }
     else {
       queryCondition = FirebaseFirestore.instance
           .collection('tasks')
@@ -217,16 +236,6 @@ class _TaskListState extends State<TaskList> {
               ),
             );
           }
-
-          // snapshot.data!.docs.map((DocumentSnapshot document) {
-          //   Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-          //     // if(widget.queryString=="category"){
-          //     //   Map<String, dynamic> dataFilter;
-          //     //   data.forEach((k,v) {
-          //     //
-          //     //   });
-          //     // }
-          // });
 
           return ListView.builder(
             padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 20.0),
@@ -646,9 +655,6 @@ class _TaskListState extends State<TaskList> {
           ,
           );
         });
-  }
-
-  ,
-
-  );
-}}
+  });
+}
+}

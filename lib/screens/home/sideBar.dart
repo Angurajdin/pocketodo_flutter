@@ -122,25 +122,6 @@ class DrawerPage extends StatelessWidget {
                     dense: true,
                     horizontalTitleGap: 0.0,
                     title: Text(
-                      "Group tasks",
-                      style: TextStyle(
-                          color: textColorDarkPurple,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600
-                      ),
-                    ),
-                    leading: Icon(
-                      Icons.people,
-                      color: textColorDarkPurple,
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    dense: true,
-                    horizontalTitleGap: 0.0,
-                    title: Text(
                       "Important",
                       style: TextStyle(
                           color: textColorDarkPurple,
@@ -154,6 +135,7 @@ class DrawerPage extends StatelessWidget {
                     ),
                     onTap: () {
                       Navigator.pop(context);
+                      Navigator.pushNamed(context, '/important');
                     },
                   ),
                   ListTile(
@@ -221,6 +203,7 @@ class DrawerPage extends StatelessWidget {
                     ),
                     onTap: () {
                       Navigator.pop(context);
+                      Navigator.pushNamed(context, '/trash');
                     },
                   ),
                   ListTile(

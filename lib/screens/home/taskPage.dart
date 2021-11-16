@@ -49,73 +49,78 @@ class TaskPage extends StatelessWidget {
                       flex: 1,
                       child: IconButton(
                           onPressed: (){
-                            Navigator.pop(context);
+                            Navigator.pushNamed(context, '/edittask', arguments: data);
                           },
                           icon: Icon(Icons.edit, size: 27.0,)
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 20.0,),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                  child: Row(
-                    children: <Widget>[
-                      Flexible(
-                        flex: 1,
-                        fit: FlexFit.tight,
-                        child: Icon(Icons.description_outlined),
-                      ),
-                      SizedBox(width: 5.0,),
-                      Flexible(
-                        flex: 6,
-                        fit: FlexFit.tight,
-                        child: Text(
-                          data['description'],
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            letterSpacing: 0.42,
+                data['description'] != "" ?
+                    Column(
+                      children: <Widget>[
+                        SizedBox(height: 20.0,),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                          child: Row(
+                            children: <Widget>[
+                              Flexible(
+                                flex: 1,
+                                fit: FlexFit.tight,
+                                child: Icon(Icons.description_outlined),
+                              ),
+                              SizedBox(width: 5.0,),
+                              Flexible(
+                                flex: 6,
+                                fit: FlexFit.tight,
+                                child: Text(
+                                  data['description'],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    letterSpacing: 0.42,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 5.0,),
+                              Flexible(
+                                child: CircularPercentIndicator(
+                                  radius: 33.0,
+                                  lineWidth: 3.3,
+                                  animation: true,
+                                  percent: data['priority']/10,
+                                  center: new Text(
+                                    data['priority'].toInt().toString(),
+                                    style:
+                                    new TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.0
+                                    ),
+                                  ),
+                                  circularStrokeCap: CircularStrokeCap.round,
+                                  progressColor: mediumPurple,
+                                  backgroundColor: lightPurple,
+                                ),
+                                flex: 1,
+                                fit: FlexFit.tight,
+                              )
+                            ],
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 6,
+                                offset: Offset(0, 3), // changes position of shadow
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      SizedBox(width: 5.0,),
-                      Flexible(
-                        child: CircularPercentIndicator(
-                          radius: 33.0,
-                          lineWidth: 3.3,
-                          animation: true,
-                          percent: data['priority']/10,
-                          center: new Text(
-                            data['priority'].toInt().toString(),
-                            style:
-                            new TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.0
-                            ),
-                          ),
-                          circularStrokeCap: CircularStrokeCap.round,
-                          progressColor: mediumPurple,
-                          backgroundColor: lightPurple,
-                        ),
-                        flex: 1,
-                        fit: FlexFit.tight,
-                      )
-                    ],
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 6,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                ),
+                      ],
+                    ) : Container(),
                 SizedBox(height: 20.0,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,39 +189,53 @@ class TaskPage extends StatelessWidget {
                     ),
                   ],
                 ),
+                data['link'] != "" ?
+                Column(
+                  children: <Widget>[
+                    SizedBox(height: 20.0,),
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                      child: Row(
+                        children: <Widget>[
+                          SizedBox(width: 5.0,),
+                          Icon(Icons.link),
+                          SizedBox(width: 10.0,),
+                          Text(
+                            data['link'],
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              letterSpacing: 0.42,
+                            ),
+                          ),
+                        ],
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            spreadRadius: 2,
+                            blurRadius: 6,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ) : Container(),
                 SizedBox(height: 20.0,),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                  child: Row(
-                    children: <Widget>[
-                      SizedBox(width: 5.0,),
-                      Icon(Icons.link),
-                      SizedBox(width: 10.0,),
-                      Text(
-                        data['link'],
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          letterSpacing: 0.42,
-                        ),
-                      ),
-                    ],
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 6,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
+                Text(
+                  "Access Permission",
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      letterSpacing: 0.42,
+                      fontWeight: FontWeight.bold
                   ),
                 ),
-                SizedBox(height: 20.0,),
+                SizedBox(height: 10.0,),
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 7.0),
                   child: Row(
                     children: <Widget>[
                       SizedBox(width: 10.0,),
@@ -244,7 +263,6 @@ class TaskPage extends StatelessWidget {
                         },
                         icon: Icon(Icons.copy),
                       ),
-                      SizedBox(width: 5.0,),
                     ],
                   ),
                   decoration: BoxDecoration(
@@ -260,54 +278,50 @@ class TaskPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 20.0,),
-                Text(
-                  "Access Permission",
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      letterSpacing: 0.42,
-                      fontWeight: FontWeight.bold
-                  ),
-                ),
-                SizedBox(height: 20.0,),
-                Text(
-                  "Tags",
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      letterSpacing: 0.42,
-                      fontWeight: FontWeight.bold
-                  ),
-                ),
-                SizedBox(height: 10.0,),
-                Wrap(
-                    spacing: 15.0, // gap between adjacent chips
-                    runSpacing: 15.0, // gap between lines
-                    children:
-                    List<Widget>.generate(
-                      data['tags'].length, (i) =>
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-                          child: Text(
-                            data['tags'][i],
-                            style: TextStyle(
-                                fontSize: 15.0
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                spreadRadius: 2,
-                                blurRadius: 6,
-                                offset: Offset(0, 3), // changes position of shadow
+                data['tags'].length > 0 ?
+                Column(
+                  children: <Widget>[
+                    SizedBox(height: 20.0,),
+                    Text(
+                      "Tags",
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          letterSpacing: 0.42,
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    SizedBox(height: 10.0,),
+                    Wrap(
+                        spacing: 15.0, // gap between adjacent chips
+                        runSpacing: 15.0, // gap between lines
+                        children:
+                        List<Widget>.generate(
+                          data['tags'].length, (i) =>
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                              child: Text(
+                                data['tags'][i],
+                                style: TextStyle(
+                                    fontSize: 15.0
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                    )
-                ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 6,
+                                    offset: Offset(0, 3), // changes position of shadow
+                                  ),
+                                ],
+                              ),
+                            ),
+                        )
+                    ),
+                  ],
+                ) : Container(),
                 SizedBox(height: 30.0,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

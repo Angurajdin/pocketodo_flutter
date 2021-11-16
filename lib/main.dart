@@ -7,11 +7,14 @@ import 'package:pocketodo/screens/home/CategoryPage.dart';
 import 'package:pocketodo/screens/home/addtask.dart';
 import 'package:pocketodo/screens/home/categoryTask.dart';
 import 'package:pocketodo/screens/home/completedTask.dart';
+import 'package:pocketodo/screens/home/editTask.dart';
 import 'package:pocketodo/screens/home/groups.dart';
+import 'package:pocketodo/screens/home/importantTasks.dart';
 import 'package:pocketodo/screens/home/notificationPage.dart';
 import 'package:pocketodo/screens/home/home.dart';
 import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/screens/home/todayTask.dart';
+import 'package:pocketodo/screens/home/trash.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:pocketodo/shared/loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -117,6 +120,9 @@ class _WrapperState extends State<Wrapper> {
                         '/categorytask': (context) => CategoryTask(),
                         '/taskpage': (context) => TaskPage(),
                         '/groups': (context) => Groups(),
+                        '/trash': (context) => TrashPage(),
+                        '/important': (context) => ImportantTaskPage(),
+                        '/edittask': (context) => EditTask(),
                       },
                     );
                   });
@@ -125,13 +131,14 @@ class _WrapperState extends State<Wrapper> {
             );
           }
           return Scaffold(
+            backgroundColor: lightPurple,
               body: Center(
                   child: AlertDialog(
                     title: const Text('No Internet'),
                     content: const Text('Please, connect with the internet'),
                     actions: <Widget>[
                       TextButton(
-                        onPressed: () => Navigator.pop(context, 'Try Again'),
+                        onPressed: null,
                         child: const Text('Try again'),
                       ),
                     ],
