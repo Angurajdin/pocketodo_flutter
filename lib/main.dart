@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:overlay_support/overlay_support.dart';
+// import 'package:overlay_support/overlay_support.dart';
 import 'package:pocketodo/screens/Authentication/login.dart';
 import 'package:pocketodo/screens/home/CategoryPage.dart';
 import 'package:pocketodo/screens/home/addtask.dart';
@@ -15,7 +14,6 @@ import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/screens/home/todayTask.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:pocketodo/shared/loading.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,7 +21,6 @@ import './screens/Authentication/login.dart';
 import './screens/Authentication/signup.dart';
 import 'initPage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-
 
 
 Future<void> main() async {
@@ -102,27 +99,25 @@ class _WrapperState extends State<Wrapper> {
                 }
                 else{
                   return new Builder(builder: (context) {
-                    return OverlaySupport.global(
-                      child: MaterialApp(
-                        debugShowCheckedModeBanner: false,
-                        theme: ThemeData(fontFamily: 'rubik'),
-                        home: TodoList(),
-                        routes: {
-                          '/initpage': (context) => initPage(),
-                          '/signup': (context) => Signup(),
-                          '/login': (context) => Login(),
-                          '/loading': (context) => Loading(),
-                          '/todolist': (context) => TodoList(),
-                          '/addtask': (context) => AddTask(),
-                          '/category': (context) => CategoryPage(),
-                          '/notification': (context) => NotificationPage(),
-                          '/today': (context) => TodayTask(),
-                          '/completed': (context) => CompletedTask(),
-                          '/categorytask': (context) => CategoryTask(),
-                          '/taskpage': (context) => TaskPage(),
-                          '/groups': (context) => Groups(),
-                        },
-                      ),
+                    return MaterialApp(
+                      debugShowCheckedModeBanner: false,
+                      theme: ThemeData(fontFamily: 'rubik'),
+                      home: TodoList(),
+                      routes: {
+                        '/initpage': (context) => initPage(),
+                        '/signup': (context) => Signup(),
+                        '/login': (context) => Login(),
+                        '/loading': (context) => Loading(),
+                        '/todolist': (context) => TodoList(),
+                        '/addtask': (context) => AddTask(),
+                        '/category': (context) => CategoryPage(),
+                        '/notification': (context) => NotificationPage(),
+                        '/today': (context) => TodayTask(),
+                        '/completed': (context) => CompletedTask(),
+                        '/categorytask': (context) => CategoryTask(),
+                        '/taskpage': (context) => TaskPage(),
+                        '/groups': (context) => Groups(),
+                      },
                     );
                   });
                 }

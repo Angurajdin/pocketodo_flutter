@@ -1,7 +1,4 @@
-import 'dart:io';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:pocketodo/screens/home/bottomFloatingNav.dart';
 import 'package:pocketodo/screens/home/sideBar.dart';
 import 'package:pocketodo/screens/home/taskList.dart';
@@ -130,6 +127,10 @@ class _TodoListState extends State<TodoList> {
                     .collection('tasks')
                     .doc(receivedNotification.payload!['id'])
                     .update({"completed": true});
+
+                await AwesomeNotifications().cancelNotificationsByGroupKey(receivedNotification.payload!['id'] ?? "");
+                await AwesomeNotifications().cancelSchedulesByGroupKey(receivedNotification.payload!['id'] ?? "");
+
               }
               else{
                 await FirebaseFirestore.instance
@@ -187,9 +188,7 @@ class _TodoListState extends State<TodoList> {
               ),SpeedDialChild(
                   child: Icon(Icons.copy),
                   label: "Note",
-                  onTap: (){
-
-                  }
+                  onTap: (){}
               ),
             ],
           ),

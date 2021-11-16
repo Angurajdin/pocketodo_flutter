@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -235,7 +236,7 @@ class TaskPage extends StatelessWidget {
                               context: context,
                               animation: StyledToastAnimation.scale,
                               reverseAnimation: StyledToastAnimation.fade,
-                              position: StyledToastPosition.bottom,
+                              position: StyledToastPosition.top,
                               animDuration: Duration(seconds: 1),
                               duration: Duration(seconds: 4),
                               curve: Curves.elasticOut,
@@ -352,19 +353,31 @@ class TaskPage extends StatelessWidget {
                           ),
                         ),
                         onPressed: ()async {
-                          await FirebaseFirestore.instance
-                              .collection('tasks')
-                              .doc(data['notificationId'])
-                              .update({"completed": true});
+                          if(!data['completed']){
+                            await FirebaseFirestore.instance
+                                .collection('tasks')
+                                .doc(data['notificationId'])
+                                .update({"completed": true});
 
-                          Navigator.pop(context);
+                            await AwesomeNotifications().cancelNotificationsByGroupKey(data['notificationId']);
+                            await AwesomeNotifications().cancelSchedulesByGroupKey(data['notificationId']);
+                            Navigator.pop(context);
+                          }
 
                         },
                         icon: Icon(
                           Icons.check_circle,
                           color: Colors.white,
                         ),
-                        label: Text(
+                        label: data['completed'] ?
+                        Text(
+                          "Completed",
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                              letterSpacing: 1.0
+                          ),
+                        ) : Text(
                           "Mark as done",
                           style: TextStyle(
                               fontSize: 20,
