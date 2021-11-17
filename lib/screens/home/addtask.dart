@@ -146,7 +146,7 @@ class _AddTaskState extends State<AddTask> {
     // Call the user's CollectionReference to add a new user
 
     for(dynamic a in _selectedLanguages){
-      selectedTags.add(a.name);
+      selectedTags.add(a.name.toString());
     }
 
     final taskData = {
@@ -265,7 +265,7 @@ class _AddTaskState extends State<AddTask> {
                   ),
                   Text(
                     "Title",
-                    style: formTextInputStyle,
+                    style: formTextInputStyle
                   ),
                   SizedBox(height: 5.0,),
                   TextFormField(
@@ -278,7 +278,9 @@ class _AddTaskState extends State<AddTask> {
                       }
                       return null;
                     },
-                    decoration: formTextInputFieldDecoration,
+                    decoration: formTextInputFieldDecoration.copyWith(
+                        hintText: 'title'
+                    ),
                     style: TextStyle(
                       fontSize: 18.0,
                       letterSpacing: 1.0,
@@ -291,7 +293,9 @@ class _AddTaskState extends State<AddTask> {
                   ),
                   SizedBox(height: 5.0,),
                   TextField(
-                    decoration: formTextInputFieldDecoration,
+                    decoration: formTextInputFieldDecoration.copyWith(
+                        hintText: 'description'
+                    ),
                     maxLines: 3,
                     onChanged: (val)=> setState(() {
                       description = val;
@@ -434,7 +438,9 @@ class _AddTaskState extends State<AddTask> {
                   ),
                   SizedBox(height: 5.0,),
                   TextField(
-                    decoration: formTextInputFieldDecoration,
+                    decoration: formTextInputFieldDecoration.copyWith(
+                        hintText: 'link'
+                    ),
                     onChanged: (val)=> setState(() {
                       link = val;
                     }),

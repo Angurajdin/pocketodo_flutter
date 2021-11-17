@@ -1,3 +1,5 @@
+import 'package:cool_alert/cool_alert.dart';
+import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:pocketodo/shared/loading.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -210,13 +212,39 @@ class _TaskListState extends State<TaskList> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    Future<void> deleteConform(String id)async{
+
+        CoolAlert.show(
+          context: context,
+          type: CoolAlertType.confirm,
+          text: 'Want to delete it',
+          confirmBtnText: 'Delete',
+          onConfirmBtnTap: ()async{
+            await AwesomeNotifications().cancelNotificationsByGroupKey(id);
+            await AwesomeNotifications().cancelSchedulesByGroupKey(id);
+
+            await FirebaseFirestore.instance
+                .collection('tasks').doc(id).update({"deleted": true})
+                .then((_) {
+              Navigator.of(context, rootNavigator: true).pop();
+            });
+          },
+          confirmBtnColor: mediumPurple,
+          cancelBtnText: 'Cancel',
+          cancelBtnTextStyle: TextStyle(color: Colors.grey[700]),
+        );
+      }
+
+
     return StreamBuilder<QuerySnapshot>(
         stream: queryCondition,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                "Something went wrong, pls close and open the app again...",
+                "Something went wrong, please close and open the app again...",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 20.0),
               ),
@@ -252,8 +280,7 @@ class _TaskListState extends State<TaskList> {
                         actionPane: SlidableDrawerActionPane(),
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/taskpage',
-                                arguments: data);
+                            Navigator.pushNamed(context, '/taskpage', arguments: data['id']);
                           },
                           child: Container(
                             padding:
@@ -428,13 +455,7 @@ class _TaskListState extends State<TaskList> {
                             color: Colors.red,
                             icon: Icons.delete,
                             onTap: () async {
-                              await AwesomeNotifications().cancel(
-                                  data['notificationId']);
-
-                              await FirebaseFirestore.instance
-                                  .collection('tasks').doc(
-                                  snapshot.data!.docs[index].id).update(
-                                  {"deleted": true});
+                              deleteConform(snapshot.data!.docs[index].id);
                             },
                           ),
                           IconSlideAction(
@@ -465,11 +486,9 @@ class _TaskListState extends State<TaskList> {
                   children: <Widget>[
               Slidable(
               child: GestureDetector(
-                  onTap: ()
-              {
-                Navigator.pushNamed(context, '/taskpage',
-                    arguments: data);
-              },
+                onTap: (){
+                  Navigator.pushNamed(context, '/taskpage', arguments: data['id']);
+                },
               child: Container(
               padding: EdgeInsets.fromLTRB(10.0, 10.0, 18.0, 25.0),
               child: InkWell(
@@ -600,43 +619,7 @@ class _TaskListState extends State<TaskList> {
               icon: Icons.delete,
               onTap: () async{
               // print(" current doc id = ${snapshot.data!.docs[index].id}");
-
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text('Delete'),
-                  content: Text('Are you sure, want to delete it'),
-                  actions: [
-                  TextButton(
-                  onPressed: () {
-                  Navigator.pop(context);
-                  },
-                  child: Text(
-                  'No',
-                  style: TextStyle(color: mediumPurple, fontSize: 18),
-                  ),
-                  ),
-                  TextButton(
-                  onPressed: () async{
-                    await AwesomeNotifications().cancelNotificationsByGroupKey(data['notificationId']);
-                    await AwesomeNotifications().cancelSchedulesByGroupKey(data['notificationId']);
-
-                    await FirebaseFirestore.instance
-                        .collection('tasks').doc(snapshot.data!.docs[index].id).update({"deleted": true})
-                        .then((_) => Navigator.pop(context));
-                  },
-                  child: Text(
-                    'Yes',
-                    style: TextStyle(
-                      color: Colors.red[300],
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  ),
-                  ],
-                ),
-              );
+                deleteConform(snapshot.data!.docs[index].id);
               }
           )
           ,

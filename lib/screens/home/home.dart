@@ -2,6 +2,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:pocketodo/screens/home/bottomFloatingNav.dart';
 import 'package:pocketodo/screens/home/sideBar.dart';
 import 'package:pocketodo/screens/home/taskList.dart';
+import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -56,23 +57,8 @@ class _TodoListState extends State<TodoList> {
   Future<void> handleDynamicLink(Uri url) async{
     List<String> separatedString = [];
     separatedString.addAll(url.path.split('/'));
-    print(" data =  $separatedString");
     if (separatedString[1] == "task") {
-      await FirebaseFirestore.instance
-          .collection('tasks')
-          .doc(separatedString[2])
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          // print('Document exists on the database');
-          Navigator.pushNamed(context, '/taskpage',
-              arguments: documentSnapshot.data());
-        }
-        else{
-          print('Document not exists on the database');
-        }
-      });
-
+      Navigator.pushNamed(context, '/taskpage', arguments: separatedString[2]);
     }
   }
 
@@ -133,20 +119,7 @@ class _TodoListState extends State<TodoList> {
 
               }
               else{
-                await FirebaseFirestore.instance
-                    .collection('tasks')
-                    .doc(receivedNotification.payload!['id'])
-                    .get()
-                    .then((DocumentSnapshot documentSnapshot) {
-                  if (documentSnapshot.exists) {
-                    // print('Document exists on the database');
-                    Navigator.pushNamed(context, '/taskpage',
-                        arguments: documentSnapshot.data());
-                  }
-                  else{
-                    print('Document not exists on the database');
-                  }
-                });
+                Navigator.pushNamed(context, '/taskpage', arguments: {"id": receivedNotification.payload!['id']});
               }
         }
     );
