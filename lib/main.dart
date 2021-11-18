@@ -65,11 +65,6 @@ class _WrapperState extends State<Wrapper> {
   final ValueNotifier<bool> isDeviceConnected = ValueNotifier(false);
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
 
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {
@@ -133,20 +128,33 @@ class _WrapperState extends State<Wrapper> {
           return Scaffold(
             backgroundColor: lightPurple,
               body: Center(
-                  child: AlertDialog(
-                    title: const Text('No Internet'),
-                    content: const Text('Please, connect with the internet'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: null,
-                        child: const Text('Try again'),
-                      ),
-                    ],
+                child: AlertDialog(
+                  title: const Text(
+                    'No Internet',
+                    style: TextStyle(
+                      color: mediumPurple,
+                    ),
                   ),
+                  content: const Text(
+                    'Please, connect with the internet'
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: (){
+                        setState(() {});
+                      },
+                      child: const Text(
+                          'Try again',
+                        style: TextStyle(
+                          color: mediumPurple,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               )
           );
         }
     );
-
   }
 }

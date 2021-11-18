@@ -2,7 +2,6 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:pocketodo/screens/home/bottomFloatingNav.dart';
 import 'package:pocketodo/screens/home/sideBar.dart';
 import 'package:pocketodo/screens/home/taskList.dart';
-import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -65,40 +64,41 @@ class _TodoListState extends State<TodoList> {
 
   @override
   Widget build(BuildContext context) {
-
     AwesomeNotifications().isNotificationAllowed().then(
           (isAllowed) {
         if (!isAllowed) {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Allow Notifications'),
-              content: Text('Our app would like to send you notifications'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    'Don\'t Allow',
-                    style: TextStyle(color: Colors.grey, fontSize: 18),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => AwesomeNotifications()
-                      .requestPermissionToSendNotifications()
-                      .then((_) => Navigator.pop(context)),
-                  child: Text(
-                    'Allow',
-                    style: TextStyle(
-                      color: Colors.teal,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+            builder: (context) =>
+                AlertDialog(
+                  title: Text('Allow Notifications'),
+                  content: Text('Our app would like to send you notifications'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Don\'t Allow',
+                        style: TextStyle(color: Colors.grey, fontSize: 18),
+                      ),
                     ),
-                  ),
+                    TextButton(
+                      onPressed: () =>
+                          AwesomeNotifications()
+                              .requestPermissionToSendNotifications()
+                              .then((_) => Navigator.pop(context)),
+                      child: Text(
+                        'Allow',
+                        style: TextStyle(
+                          color: Colors.teal,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
         }
       },
@@ -106,21 +106,22 @@ class _TodoListState extends State<TodoList> {
 
 
     AwesomeNotifications().actionStream.listen(
-            (receivedNotification) async{
+            (receivedNotification) async {
+          if (receivedNotification.buttonKeyPressed == 'MARK_DONE') {
+            await FirebaseFirestore.instance
+                .collection('tasks')
+                .doc(receivedNotification.payload!['id'])
+                .update({"completed": true});
 
-              if(receivedNotification.buttonKeyPressed == 'MARK_DONE'){
-                await FirebaseFirestore.instance
-                    .collection('tasks')
-                    .doc(receivedNotification.payload!['id'])
-                    .update({"completed": true});
-
-                await AwesomeNotifications().cancelNotificationsByGroupKey(receivedNotification.payload!['id'] ?? "");
-                await AwesomeNotifications().cancelSchedulesByGroupKey(receivedNotification.payload!['id'] ?? "");
-
-              }
-              else{
-                Navigator.pushNamed(context, '/taskpage', arguments: {"id": receivedNotification.payload!['id']});
-              }
+            await AwesomeNotifications().cancelNotificationsByGroupKey(
+                receivedNotification.payload!['id'] ?? "");
+            await AwesomeNotifications().cancelSchedulesByGroupKey(
+                receivedNotification.payload!['id'] ?? "");
+          }
+          else {
+            Navigator.pushNamed(context, '/taskpage',
+                arguments: {"id": receivedNotification.payload!['id']});
+          }
         }
     );
 
@@ -135,7 +136,45 @@ class _TodoListState extends State<TodoList> {
           return true;
         },
         child: Scaffold(
-          appBar: appBarLogo,
+          appBar: AppBar(
+            backgroundColor: mediumPurple,
+            title: Image.asset(
+              'assets/Logo.jpg',
+              height: 40,
+            ),
+            centerTitle: true,
+            actions: [
+              PopupMenuButton(
+                  icon: Icon(
+                    Icons.filter_alt,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: TextButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.navigate_before_outlined),
+                          label: Text(
+                              "Sort by",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15.0
+                            ),
+                          )
+                      ),
+                      value: 1,
+                      onTap: null,
+                    ),
+                    PopupMenuItem(
+                      child: Text("Tags"),
+                      value: 2,
+                      onTap: null,
+                    )
+                  ]
+              )
+            ],
+          ),
           drawer: DrawerPage(),
           floatingActionButton: SpeedDial(
             icon: Icons.add,
@@ -169,7 +208,7 @@ class _TodoListState extends State<TodoList> {
           bottomNavigationBar: bottomFloatingNav(currentIndex: 0,),
           body: TaskList(queryString: "home", dataNullMsge: "No todo has created till now, Create new one by pressing the below + button",category: "",),
         ),
-      )
+      ),
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/services/createDynamicLink.dart';
 import 'package:pocketodo/shared/loading.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -7,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:flutter_tagging/flutter_tagging.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -77,6 +75,11 @@ class _AddTaskState extends State<AddTask> {
 
   String url = "";
 
+  var focusNode = FocusNode();
+  var focusNodeDesc = FocusNode();
+  var focusNodeLink = FocusNode();
+  var focusNodeSlider = FocusNode();
+  bool inpuFieldsFocus = true;
   final _formKey = GlobalKey<FormState>();
   TextEditingController title = new TextEditingController();
   final format = DateFormat("dd-MM-yyyy HH:mm");
@@ -133,7 +136,6 @@ class _AddTaskState extends State<AddTask> {
 
     }
   }
-
 
   Future<List<Language>> getLanguages(String query) async {
 
@@ -204,6 +206,31 @@ class _AddTaskState extends State<AddTask> {
   @override
   void initState() {
 
+    focusNode.addListener(() {
+      if(focusNode.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+    focusNodeDesc.addListener(() {
+      if(focusNodeDesc.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+    focusNodeLink.addListener(() {
+      if(focusNodeLink.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+    focusNodeSlider.addListener(() {
+      if(focusNodeSlider.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+
     userTags = [];
 
     initDynamicLinks();
@@ -230,6 +257,10 @@ class _AddTaskState extends State<AddTask> {
   void dispose() {
     // Clean up the controller when the widget is removed from the
     // widget tree.
+    focusNode.dispose();
+    focusNodeDesc.dispose();
+    focusNodeSlider.dispose();
+    focusNodeLink.dispose();
     _selectedLanguages.clear();
     title.dispose();
     super.dispose();
@@ -239,12 +270,14 @@ class _AddTaskState extends State<AddTask> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: lightPurple,
+      backgroundColor: lightPurple,
       // resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Container(
           // color: lightPurple,
-          padding: EdgeInsets.fromLTRB(20.0, 3.0, 20.0, MediaQuery.of(context).viewInsets.bottom),
+          padding: inpuFieldsFocus ?
+          EdgeInsets.fromLTRB(20.0, 3.0, 20.0, MediaQuery.of(context).viewInsets.bottom):
+          EdgeInsets.all(20.0),
           child: SingleChildScrollView(
             reverse: true,
             child: Form(
@@ -271,6 +304,7 @@ class _AddTaskState extends State<AddTask> {
                   TextFormField(
                     // The validator receives the text that the user has entered.
                     controller: title,
+                    focusNode: focusNode,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -293,6 +327,7 @@ class _AddTaskState extends State<AddTask> {
                   ),
                   SizedBox(height: 5.0,),
                   TextField(
+                    focusNode: focusNodeDesc,
                     decoration: formTextInputFieldDecoration.copyWith(
                         hintText: 'description'
                     ),
@@ -338,8 +373,6 @@ class _AddTaskState extends State<AddTask> {
                       }
                     },
                   ),
-
-
                   SizedBox(height: 15.0,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -350,6 +383,7 @@ class _AddTaskState extends State<AddTask> {
                       ),
                       Expanded(
                         child: Slider(
+                            focusNode: focusNodeSlider,
                             value: _currentSliderValue,
                             min: 1,
                             max: 10,
@@ -438,6 +472,9 @@ class _AddTaskState extends State<AddTask> {
                   ),
                   SizedBox(height: 5.0,),
                   TextField(
+                    key: Key("link"),
+                    focusNode: focusNodeLink,
+                    autofocus: false,
                     decoration: formTextInputFieldDecoration.copyWith(
                         hintText: 'link'
                     ),

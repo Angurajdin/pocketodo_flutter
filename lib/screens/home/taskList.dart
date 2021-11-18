@@ -271,6 +271,7 @@ class _TaskListState extends State<TaskList> {
             itemBuilder: (context, index) {
               Map<String, dynamic> data =
               snapshot.data!.docs[index].data() as Map<String, dynamic>;
+
               if (widget.queryString == "category") {
                 if (data['tags'].contains(widget.category)) {
                   categoryCount += 1;
@@ -302,12 +303,15 @@ class _TaskListState extends State<TaskList> {
                                         crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                         children: <Widget>[
-                                          Text(
-                                            data['title'],
-                                            style: TextStyle(
-                                                fontSize: 18.0,
-                                                letterSpacing: 0.7,
-                                                fontWeight: FontWeight.w600),
+                                          Hero(
+                                            tag: "title-${data['title']}",
+                                            child: Text(
+                                              data['title'],
+                                              style: TextStyle(
+                                                  fontSize: 18.0,
+                                                  letterSpacing: 0.7,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
                                           ),
                                           SizedBox(
                                             height: 10.0,
@@ -425,11 +429,11 @@ class _TaskListState extends State<TaskList> {
                               BorderRadius.all(Radius.circular(15.0)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  spreadRadius: 5,
-                                  blurRadius: 5,
-                                  offset: Offset(
-                                      0, 5), // changes position of shadow
+                                  color: Colors.grey.withOpacity(0.25),
+                                  spreadRadius: 3,
+                                  blurRadius: 6,
+                                  offset:
+                                  Offset(2, 3), // changes position of shadow
                                 ),
                               ],
                             ),
@@ -437,16 +441,18 @@ class _TaskListState extends State<TaskList> {
                         ),
                         actions: <Widget>[
                           IconSlideAction(
-                            caption: 'Archive',
-                            color: Colors.blue,
-                            icon: Icons.archive,
-                            onTap: () => print('Archive'),
+                            caption: 'Delete',
+                            color: Colors.red,
+                            icon: Icons.delete,
+                            onTap: () async {
+                              deleteConform(snapshot.data!.docs[index].id);
+                            },
                           ),
                           IconSlideAction(
-                            caption: 'Share',
-                            color: Colors.indigo,
-                            icon: Icons.share,
-                            onTap: () => print('Share'),
+                            caption: 'Close',
+                            color: Colors.black45,
+                            icon: Icons.close,
+                            onTap: () => null,
                           ),
                         ],
                         secondaryActions: <Widget>[
@@ -483,160 +489,165 @@ class _TaskListState extends State<TaskList> {
                 }
               }
               return Column(
-                  children: <Widget>[
-              Slidable(
-              child: GestureDetector(
-                onTap: (){
-                  Navigator.pushNamed(context, '/taskpage', arguments: data['id']);
-                },
-              child: Container(
-              padding: EdgeInsets.fromLTRB(10.0, 10.0, 18.0, 25.0),
-              child: InkWell(
-              splashColor: lightPurple,
-              child: Row(
-              children: <Widget>[
-              Flexible(
-              flex: 1,
-              child: Container(),
-              fit: FlexFit.tight,
-              ),
-              Flexible(
-              flex: 8,
-              child: Column(
-              mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: <Widget>[
-              Text(
-              data['title'],
-              style: TextStyle(
-              fontSize: 18.0,
-              letterSpacing: 0.7,
-              fontWeight: FontWeight.w600),
-              ),
-              SizedBox(
-              height: 10.0,
-              ),
-              // Text((() {
-              //   if(data['description'].length>10){
-              //     return "${data['description'].substring(0, 10)}...";
-              //   }
-              //   return "${data['description']}...";
-              // })()),
-              Wrap(
-              spacing: 10.0,
-              // gap between adjacent chips
-              runSpacing: 5.0,
-              // gap between lines
-              children: returnTags(data['tags']),
-              ),
-              ],
-              ),
-              fit: FlexFit.tight,
-              ),
-              Flexible(
-              flex: 4,
-              child: Column(
-              mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-              Row(
-              children: <Widget>[
-              Icon(
-              Icons.today,
-              ),
-              Text(
-              CalendarTime(data['datetime']
-                  .toDate())
-                  .isToday
-              ? "Today"
-                  : CalendarTime(data['datetime']
-                  .toDate())
-                  .isTomorrow
-              ? "Tomorrow"
-                  : CalendarTime(
-              data['datetime']
-                  .toDate())
-                  .isYesterday
-              ? "Yesterday"
-                  : "${dateMonthYear.format(
-              data['datetime'].toDate())}",
-              style: TextStyle(fontSize: 14.0),
-              )
-              ],
-              ),
-              Row(
-              children: <Widget>[
-              Icon(Icons.access_alarms_rounded),
-              Text(
-              time.format(
-              data['datetime'].toDate()),
-              style: TextStyle(fontSize: 14.0),
-              )
-              ],
-              ),
-              ],
-              ),
-              fit: FlexFit.tight,
-              ),
-              ],
-              )),
-              decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(15.0)),
-              boxShadow: [
-              BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 3,
-              blurRadius: 6,
-              offset:
-              Offset(2, 3), // changes position of shadow
-              ),
-              ],
-              ),
-              ),
-              ),
-              actionPane: SlidableDrawerActionPane(),
-              actions: <Widget>[
-              IconSlideAction(
-              caption: 'Archive wo',
-              color: Colors.blue,
-              icon: Icons.archive,
-              onTap: () => print('Archive'),
-              ),
-              IconSlideAction(
-              caption: 'Share',
-              color: Colors.indigo,
-              icon: Icons.share,
-              onTap: () => print('Share'),
-              ),
-              ],
-              secondaryActions: <Widget>[
-              IconSlideAction(
-              caption: 'Delete',
-              color: Colors.red,
-              icon: Icons.delete,
-              onTap: () async{
-              // print(" current doc id = ${snapshot.data!.docs[index].id}");
-                deleteConform(snapshot.data!.docs[index].id);
-              }
-          )
-          ,
-          IconSlideAction(
-          caption: 'Close',
-          color: Colors.black45,
-          icon: Icons.close,
-          onTap: () => null,
-          ),
-          ],
-          ),
-          SizedBox(
-          height: 15.0,
-          ),
-          ]
-          ,
-          );
+                children: <Widget>[
+                  Slidable(
+                    child: GestureDetector(
+                      onTap: (){
+                        Navigator.pushNamed(context, '/taskpage', arguments: data['id']);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(10.0, 10.0, 18.0, 25.0),
+                        child: InkWell(
+                            splashColor: lightPurple,
+                            child: Row(
+                              children: <Widget>[
+                                Flexible(
+                                  flex: 1,
+                                  child: Container(),
+                                  fit: FlexFit.tight,
+                                ),
+                                Flexible(
+                                  flex: 8,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Hero(
+                                        tag: "title-${data['id']}",
+                                        child: Text(
+                                          data['title'],
+                                          style: TextStyle(
+                                              fontSize: 18.0,
+                                              letterSpacing: 0.7,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10.0,
+                                      ),
+                                      // Text((() {
+                                      //   if(data['description'].length>10){
+                                      //     return "${data['description'].substring(0, 10)}...";
+                                      //   }
+                                      //   return "${data['description']}...";
+                                      // })()),
+                                      Wrap(
+                                        spacing: 10.0,
+                                        // gap between adjacent chips
+                                        runSpacing: 5.0,
+                                        // gap between lines
+                                        children: returnTags(data['tags']),
+                                      ),
+                                    ],
+                                  ),
+                                  fit: FlexFit.tight,
+                                ),
+                                Flexible(
+                                  flex: 4,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Row(
+                                        children: <Widget>[
+                                          Icon(
+                                            Icons.today,
+                                          ),
+                                          Text(
+                                            CalendarTime(data['datetime']
+                                                .toDate())
+                                                .isToday
+                                                ? "Today"
+                                                : CalendarTime(data['datetime']
+                                                .toDate())
+                                                .isTomorrow
+                                                ? "Tomorrow"
+                                                : CalendarTime(
+                                                data['datetime']
+                                                    .toDate())
+                                                .isYesterday
+                                                ? "Yesterday"
+                                                : "${dateMonthYear.format(
+                                                data['datetime'].toDate())}",
+                                            style: TextStyle(fontSize: 14.0),
+                                          )
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Icon(Icons.access_alarms_rounded),
+                                          Text(
+                                            time.format(
+                                                data['datetime'].toDate()),
+                                            style: TextStyle(fontSize: 14.0),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  fit: FlexFit.tight,
+                                ),
+                              ],
+                            )),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.25),
+                              spreadRadius: 3,
+                              blurRadius: 6,
+                              offset:
+                              Offset(2, 3), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    actionPane: SlidableDrawerActionPane(),
+                    actions: <Widget>[
+                      IconSlideAction(
+                        caption: 'Delete',
+                        color: Colors.red,
+                        icon: Icons.delete,
+                        onTap: () async {
+                          deleteConform(snapshot.data!.docs[index].id);
+                        },
+                      ),
+                      IconSlideAction(
+                        caption: 'Close',
+                        color: Colors.black45,
+                        icon: Icons.close,
+                        onTap: () => null,
+                      ),
+                    ],
+                    secondaryActions: <Widget>[
+                      IconSlideAction(
+                          caption: 'Delete',
+                          color: Colors.red,
+                          icon: Icons.delete,
+                          onTap: () async{
+                            // print(" current doc id = ${snapshot.data!.docs[index].id}");
+                            deleteConform(snapshot.data!.docs[index].id);
+                          }
+                      )
+                      ,
+                      IconSlideAction(
+                        caption: 'Close',
+                        color: Colors.black45,
+                        icon: Icons.close,
+                        onTap: () => null,
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                ]
+                ,
+              );
         });
   });
 }

@@ -40,12 +40,3 @@ const darkPurple = Color(0xFF706897);
 const lightPurple = Color(0xFFE7E6F4);
 const textColorDarkPurple = Color(0xFF262A35);
 const mediumPurple = Color(0xFF9088D3);
-
-dynamic appBarLogo = AppBar(
-  backgroundColor: mediumPurple,
-  title: Image.asset(
-    'assets/Logo.jpg',
-    height: 40,
-  ),
-  centerTitle: true,
-);

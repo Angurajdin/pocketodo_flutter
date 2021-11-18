@@ -70,6 +70,12 @@ class EditTask extends StatefulWidget {
 
 class _EditTaskState extends State<EditTask> {
 
+  var focusNode2 = FocusNode();
+  var focusNodeDesc2 = FocusNode();
+  var focusNodeLink2 = FocusNode();
+  var focusNodeSlider2 = FocusNode();
+  bool inpuFieldsFocus = true;
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController title = new TextEditingController();
   final format = DateFormat("dd-MM-yyyy HH:mm");
@@ -149,6 +155,31 @@ class _EditTaskState extends State<EditTask> {
   @override
   void initState() {
 
+    focusNode2.addListener(() {
+      if(focusNode2.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+    focusNodeDesc2.addListener(() {
+      if(focusNodeDesc2.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+    focusNodeLink2.addListener(() {
+      if(focusNodeLink2.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+    focusNodeSlider2.addListener(() {
+      if(focusNodeSlider2.hasFocus)
+        inpuFieldsFocus = false;
+      else
+        inpuFieldsFocus = true;
+    });
+
     userTags = [];
 
     FirebaseFirestore.instance
@@ -174,6 +205,10 @@ class _EditTaskState extends State<EditTask> {
   void dispose() {
     // Clean up the controller when the widget is removed from the
     // widget tree.
+    focusNode2.dispose();
+    focusNodeDesc2.dispose();
+    focusNodeSlider2.dispose();
+    focusNodeLink2.dispose();
     _selectedLanguages.clear();
     title.dispose();
     super.dispose();
@@ -279,7 +314,9 @@ class _EditTaskState extends State<EditTask> {
         body: SafeArea(
           child: Container(
             // color: lightPurple,
-            padding: EdgeInsets.fromLTRB(20.0, 3.0, 20.0, MediaQuery.of(context).viewInsets.bottom),
+            padding: inpuFieldsFocus ?
+            EdgeInsets.fromLTRB(20.0, 3.0, 20.0, MediaQuery.of(context).viewInsets.bottom):
+            EdgeInsets.all(20.0),
             child: SingleChildScrollView(
               reverse: true,
               child: Form(
@@ -306,6 +343,7 @@ class _EditTaskState extends State<EditTask> {
                     TextFormField(
                       // The validator receives the text that the user has entered.
                       controller: title,
+                      focusNode: focusNode2,
                       keyboardType: TextInputType.text,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -328,6 +366,7 @@ class _EditTaskState extends State<EditTask> {
                     ),
                     SizedBox(height: 5.0,),
                     TextFormField(
+                      focusNode: focusNodeDesc2,
                       initialValue: description,
                       decoration: formTextInputFieldDecoration.copyWith(
                           hintText: 'description'
@@ -384,6 +423,7 @@ class _EditTaskState extends State<EditTask> {
                         ),
                         Expanded(
                           child: Slider(
+                              focusNode: focusNodeSlider2,
                               value: _currentSliderValue,
                               min: 1,
                               max: 10,
@@ -472,6 +512,7 @@ class _EditTaskState extends State<EditTask> {
                     ),
                     SizedBox(height: 5.0,),
                     TextFormField(
+                      focusNode: focusNodeLink2,
                       initialValue: link,
                       decoration: formTextInputFieldDecoration.copyWith(
                           hintText: 'link',

@@ -59,6 +59,7 @@ class _TaskPageState extends State<TaskPage> {
 
         else{
           Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+
           return Scaffold(
             backgroundColor: lightPurple,
             // resizeToAvoidBottomInset: false,
@@ -76,16 +77,19 @@ class _TaskPageState extends State<TaskPage> {
                           Flexible(
                             flex: 9,
                             fit: FlexFit.tight,
-                            child: Text(
-                              data['title'],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 20.0,
-                                  letterSpacing: 0.42,
-                                  fontWeight: FontWeight.w900,
-                                  color: mediumPurple
+                            child: Hero(
+                              tag: "title-${data['id']}",
+                              child: Text(
+                                data['title'],
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 20.0,
+                                    letterSpacing: 0.42,
+                                    fontWeight: FontWeight.w900,
+                                    color: mediumPurple
+                                ),
                               ),
-                            ),
+                            )
                           ),
                           Flexible(
                             flex: 1,

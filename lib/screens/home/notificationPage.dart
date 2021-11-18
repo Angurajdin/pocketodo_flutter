@@ -17,7 +17,37 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context)=> Scaffold(
-        appBar: appBarLogo,
+        appBar: AppBar(
+          backgroundColor: mediumPurple,
+          title: Image.asset(
+            'assets/Logo.jpg',
+            height: 40,
+          ),
+          centerTitle: true,
+          actions: <IconButton>[
+            IconButton(
+                onPressed: (){
+                  PopupMenuButton(
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          child: Text("First"),
+                          value: 1,
+                        ),
+                        PopupMenuItem(
+                          child: Text("Second"),
+                          value: 2,
+                        )
+                      ]
+                  );
+                },
+                icon: Icon(
+                  Icons.filter_alt,
+                  color: Colors.white,
+                  size: 30,
+                )
+            )
+          ],
+        ),
         drawer: DrawerPage(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
