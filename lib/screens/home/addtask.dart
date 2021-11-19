@@ -346,6 +346,7 @@ class _AddTaskState extends State<AddTask> {
                     style: formTextInputStyle,
                   ),
                   SizedBox(height: 5.0,),
+              
                   DateTimeField(
                     initialValue: selectedDateTime,
                     format: format,

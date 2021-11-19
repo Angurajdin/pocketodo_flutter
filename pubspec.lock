@@ -155,6 +155,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  custom_radio_grouped_button:
+    dependency: "direct main"
+    description:
+      name: custom_radio_grouped_button
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.1"
   datetime_picker_formfield:
     dependency: "direct main"
     description:
@@ -401,13 +408,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0"
-  overlay_support:
-    dependency: "direct main"
-    description:
-      name: overlay_support
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.2.1"
   path:
     dependency: transitive
     description:

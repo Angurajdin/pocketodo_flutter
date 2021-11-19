@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter/services.dart';
 import 'package:pocketodo/shared/loading.dart';
+import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
+
 
 class TaskPage extends StatefulWidget {
   @override
@@ -278,6 +280,40 @@ class _TaskPageState extends State<TaskPage> {
                             letterSpacing: 0.42,
                             fontWeight: FontWeight.bold
                         ),
+                      ),
+                      SizedBox(height: 10.0,),
+                      CustomRadioButton(
+                        customShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                              color: mediumPurple,
+                              width: 1
+                          ),
+                        ),
+                        buttonTextStyle: ButtonTextStyle(
+                          textStyle: TextStyle(
+                            fontSize: 15.0,
+                              fontFamily: 'rubik'
+                          )
+                        ),
+                        elevation: 3.0,
+                        enableShape: true,
+                        unSelectedColor: Colors.white,
+                        buttonLables: [
+                          'Public',
+                          'Private',
+                          'Restricted',
+                        ],
+                        buttonValues: [
+                          "Public",
+                          "Private",
+                          "Restricted",
+                        ],
+                        defaultSelected: "Private",
+                        radioButtonValue: (value) {
+                          print(value);
+                        },
+                        selectedColor: mediumPurple,
                       ),
                       SizedBox(height: 10.0,),
                       Container(
