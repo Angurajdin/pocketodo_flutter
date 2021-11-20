@@ -1,5 +1,4 @@
 import 'package:cool_alert/cool_alert.dart';
-import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:pocketodo/shared/loading.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -10,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:calendar_time/calendar_time.dart';
+import 'package:share_plus/share_plus.dart';
 
 class TaskList extends StatefulWidget {
   String queryString, dataNullMsge, category;
@@ -62,7 +62,7 @@ class _TaskListState extends State<TaskList> {
           .collection('tasks')
           .where('members',
           arrayContainsAny: [FirebaseAuth.instance.currentUser!.email])
-      //.where('date', isEqualTo: dateMonthYear.format(DateTime.now()))
+          .where('date', isEqualTo: dateMonthYear.format(DateTime.now()))
           .where("deleted", isEqualTo: false)
           .orderBy('datetime', descending: true)
           .snapshots();
@@ -609,6 +609,12 @@ class _TaskListState extends State<TaskList> {
                     actionPane: SlidableDrawerActionPane(),
                     actions: <Widget>[
                       IconSlideAction(
+                        caption: 'Close',
+                        color: Colors.black45,
+                        icon: Icons.close,
+                        onTap: () => null,
+                      ),
+                      IconSlideAction(
                         caption: 'Delete',
                         color: Colors.red,
                         icon: Icons.delete,
@@ -617,13 +623,23 @@ class _TaskListState extends State<TaskList> {
                         },
                       ),
                       IconSlideAction(
-                        caption: 'Close',
-                        color: Colors.black45,
-                        icon: Icons.close,
-                        onTap: () => null,
+                        caption: 'Share',
+                        color: mediumPurple,
+                        icon: Icons.share,
+                        onTap: () async{
+                          await Share.share(data['taskLink'], subject: "Pocketodo Application");
+                        },
                       ),
                     ],
                     secondaryActions: <Widget>[
+                      IconSlideAction(
+                        caption: 'Share',
+                        color: mediumPurple,
+                        icon: Icons.share,
+                        onTap: () async{
+                          await Share.share(data['taskLink'], subject: "Pocketodo Application");
+                        },
+                      ),
                       IconSlideAction(
                           caption: 'Delete',
                           color: Colors.red,
@@ -632,8 +648,7 @@ class _TaskListState extends State<TaskList> {
                             // print(" current doc id = ${snapshot.data!.docs[index].id}");
                             deleteConform(snapshot.data!.docs[index].id);
                           }
-                      )
-                      ,
+                      ),
                       IconSlideAction(
                         caption: 'Close',
                         color: Colors.black45,

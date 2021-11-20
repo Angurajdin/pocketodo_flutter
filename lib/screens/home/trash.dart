@@ -3,6 +3,8 @@ import 'package:pocketodo/screens/home/sideBar.dart';
 import 'package:pocketodo/screens/home/taskList.dart';
 import 'package:pocketodo/shared/constants.dart';
 
+import 'bottomFloatingNav.dart';
+
 
 class TrashPage extends StatefulWidget {
   const TrashPage({Key? key}) : super(key: key);

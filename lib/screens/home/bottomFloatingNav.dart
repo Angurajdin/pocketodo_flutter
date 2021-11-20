@@ -28,7 +28,7 @@ class _bottomFloatingNavState extends State<bottomFloatingNav> {
       onTap: (int val) {
         setState(() { _index = val; } );
         if(val==0){
-          Navigator.pushReplacementNamed(context, '/todolist');
+          Navigator.pushReplacementNamed(context, '/');
         }
         if(val==1){
           Navigator.pushReplacementNamed(context, '/category');

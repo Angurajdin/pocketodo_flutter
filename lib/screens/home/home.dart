@@ -1,4 +1,7 @@
+import 'package:cool_alert/cool_alert.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:pocketodo/screens/home/bottomFloatingNav.dart';
 import 'package:pocketodo/screens/home/sideBar.dart';
 import 'package:pocketodo/screens/home/taskList.dart';
@@ -20,10 +23,11 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
 
   var isDialOpen = ValueNotifier<bool>(false);
+  dynamic taskDoc;
 
   @override
   void initState() {
-    // initDynamicLinks();
+    initDynamicLinks();
     super.initState();
   }
 
@@ -54,10 +58,66 @@ class _TodoListState extends State<TodoList> {
   }
 
   Future<void> handleDynamicLink(Uri url) async{
+
     List<String> separatedString = [];
     separatedString.addAll(url.path.split('/'));
     if (separatedString[1] == "task") {
-      Navigator.pushNamed(context, '/taskpage', arguments: separatedString[2]);
+      taskDoc = await FirebaseFirestore.instance.collection('tasks').doc(separatedString[2]).get();
+
+      if(taskDoc.data()['permission']=="public" || taskDoc.data()['members'].contains(FirebaseAuth.instance.currentUser!.email)){
+        Navigator.pushNamed(context, '/taskpage', arguments: separatedString[2]);
+      }
+      else {
+        await showAlertMessage(context, taskDoc.data()['permission'], separatedString[2]);
+      }
+    }
+  }
+
+  Future<void> requestUpdate(String id) async{
+    await FirebaseFirestore.instance.collection('tasks').doc(id).update({
+      "requested":
+      [ ...taskDoc.data()['requested'],
+        {
+          "emailid": await FirebaseAuth.instance.currentUser!.email,
+          "requestedDateTime": DateTime.now()
+        }
+      ]
+    });
+  }
+
+  Future<dynamic> showAlertMessage(context, String permission, String id) async {
+    if(permission=="private"){
+      return CoolAlert.show(
+        context: context,
+        type: CoolAlertType.warning,
+        text: "it's private, you don't have permission to view this task",
+        confirmBtnText: 'cancel',
+        confirmBtnColor: mediumPurple,
+      );
+    }
+    else{
+      CoolAlert.show(
+        context: context,
+        type: CoolAlertType.warning,
+        text: 'You need the permission to view this task',
+        confirmBtnText: 'Request',
+        onConfirmBtnTap: () async {
+          Navigator.of(context, rootNavigator: true).pop();
+          showToast('Request has been sent',
+              context: context,
+              animation: StyledToastAnimation.scale,
+              reverseAnimation: StyledToastAnimation.fade,
+              position: StyledToastPosition.top,
+              animDuration: Duration(seconds: 1),
+              duration: Duration(seconds: 4),
+              curve: Curves.elasticOut,
+              reverseCurve: Curves.linear);
+          requestUpdate(id);
+        },
+        confirmBtnColor: mediumPurple,
+        cancelBtnText: 'Cancel',
+        cancelBtnTextStyle: TextStyle(color: Colors.grey[700]),
+      );
     }
   }
 
@@ -106,19 +166,19 @@ class _TodoListState extends State<TodoList> {
 
 
     AwesomeNotifications().actionStream.listen(
-            (receivedNotification) async {
-          if (receivedNotification.buttonKeyPressed == 'MARK_DONE') {
-            await FirebaseFirestore.instance
-                .collection('tasks')
-                .doc(receivedNotification.payload!['id'])
-                .update({"completed": true});
+          (receivedNotification) async {
+            if (receivedNotification.buttonKeyPressed == 'MARK_DONE') {
+              await FirebaseFirestore.instance
+                  .collection('tasks')
+                  .doc(receivedNotification.payload!['id'])
+                  .update({"completed": true});
 
-            await AwesomeNotifications().cancelNotificationsByGroupKey(
-                receivedNotification.payload!['id'] ?? "");
-            await AwesomeNotifications().cancelSchedulesByGroupKey(
-                receivedNotification.payload!['id'] ?? "");
-          }
-          else {
+              await AwesomeNotifications().cancelNotificationsByGroupKey(
+                  receivedNotification.payload!['id'] ?? "");
+              await AwesomeNotifications().cancelSchedulesByGroupKey(
+                  receivedNotification.payload!['id'] ?? "");
+            }
+            else {
             Navigator.pushNamed(context, '/taskpage',
                 arguments: {"id": receivedNotification.payload!['id']});
           }

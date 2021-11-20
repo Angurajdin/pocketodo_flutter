@@ -101,13 +101,13 @@ class _WrapperState extends State<Wrapper> {
                     return MaterialApp(
                       debugShowCheckedModeBanner: false,
                       theme: ThemeData(fontFamily: 'rubik'),
-                      home: TodoList(),
+                      initialRoute: '/',
                       routes: {
+                        '/': (context) => TodoList(),
                         '/initpage': (context) => initPage(),
                         '/signup': (context) => Signup(),
                         '/login': (context) => Login(),
                         '/loading': (context) => Loading(),
-                        '/todolist': (context) => TodoList(),
                         '/addtask': (context) => AddTask(),
                         '/category': (context) => CategoryPage(),
                         '/notification': (context) => NotificationPage(),
