@@ -167,6 +167,7 @@ class _AddTaskState extends State<AddTask> {
       "createdAt": DateTime.now(),
       "modifiedAt": null,
       "deleted": false,
+      "permission": "private",
       "important": false,
       "completed": false,
       "taskLink": ""
