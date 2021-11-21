@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-
+import 'package:after_layout/after_layout.dart';
 
 class TodoList extends StatefulWidget {
 
@@ -19,11 +19,10 @@ class TodoList extends StatefulWidget {
   _TodoListState createState() => _TodoListState();
 }
 
-class _TodoListState extends State<TodoList> {
+class _TodoListState extends State<TodoList>{
 
   var isDialOpen = ValueNotifier<bool>(false);
   dynamic taskDoc, notificationChangeUser;
-
 
   @override
   void initState() {
@@ -52,15 +51,12 @@ class _TodoListState extends State<TodoList> {
   }
 
   Future<void> handleDynamicLink(Uri url) async{
-
-    print("dy links");
-
     List<String> separatedString = [];
     separatedString.addAll(url.path.split('/'));
     if (separatedString[1] == "taskpage") {
       taskDoc = await FirebaseFirestore.instance.collection('tasks').doc(separatedString[2]).get();
       if(taskDoc.data()['permission']=="public" || taskDoc.data()['members'].contains(FirebaseAuth.instance.currentUser!.email)){
-        Navigator.pushNamed(context, '/taskpage', arguments: separatedString[2]);
+        Navigator.of(context).pushNamed('/taskpage', arguments: separatedString[2]);
       }
       else {
         await showAlertMessage(context, taskDoc.data()['permission'], separatedString[2]);
@@ -202,7 +198,7 @@ class _TodoListState extends State<TodoList> {
           appBar: AppBar(
             backgroundColor: mediumPurple,
             title: Image.asset(
-              'assets/Logo.jpg',
+              'images/Logo.jpg',
               height: 40,
             ),
             centerTitle: true,
@@ -255,13 +251,17 @@ class _TodoListState extends State<TodoList> {
             ),
             children: <SpeedDialChild>[
               SpeedDialChild(
-                  child: Icon(Icons.mail),
+                  child: Icon(
+                    Icons.add_task,
+                  ),
                   label: "Task",
                   onTap: (){
                     Navigator.pushNamed(context, '/addtask');
                   }
               ),SpeedDialChild(
-                  child: Icon(Icons.copy),
+                  child: Icon(
+                    Icons.note_add,
+                  ),
                   label: "Note",
                   onTap: (){}
               ),
@@ -274,4 +274,5 @@ class _TodoListState extends State<TodoList> {
       ),
     );
   }
+
 }

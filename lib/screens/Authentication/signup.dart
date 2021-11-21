@@ -35,7 +35,7 @@ class _SignupState extends State<Signup> {
       },
       theme: ThemeData(fontFamily: 'rubik'),
       home: Scaffold(
-        resizeToAvoidBottomInset: false,
+
         body: Builder(
           builder: (context)=> Center(
             child: ListView(
@@ -43,7 +43,7 @@ class _SignupState extends State<Signup> {
               children: <Widget>[
                 SizedBox(height: 35.0,),
                 Image.asset(
-                  'assets/logodark.jpg',
+                  'images/logodark.jpg',
                   height: 30.0,
                   width: 400.0,
                 ),

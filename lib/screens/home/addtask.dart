@@ -94,49 +94,6 @@ class _AddTaskState extends State<AddTask> {
   List<String> selectedTags = [];
   CollectionReference taskCollectionRef = FirebaseFirestore.instance.collection('tasks');
 
-  //Retrieve dynamic link firebase.
-  Future<void> initDynamicLinks() async {
-    final PendingDynamicLinkData? data =
-    await FirebaseDynamicLinks.instance.getInitialLink();
-    final Uri? deepLink = data?.link;
-
-    if (deepLink != null) {
-      handleDynamicLink(deepLink);
-    }
-    FirebaseDynamicLinks.instance.onLink(
-        onSuccess: (PendingDynamicLinkData? dynamicLink) async {
-          final Uri? deepLink = dynamicLink?.link;
-
-          if (deepLink != null) {
-            handleDynamicLink(deepLink);
-          }
-        }, onError: (OnLinkErrorException e) async {
-      print(e.message);
-    });
-  }
-
-  Future<void> handleDynamicLink(Uri url) async{
-    List<String> separatedString = [];
-    separatedString.addAll(url.path.split('/'));
-    if (separatedString[1] == "task") {
-      await FirebaseFirestore.instance
-          .collection('tasks')
-          .doc(separatedString[2])
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          // print('Document exists on the database');
-          Navigator.pushNamed(context, '/taskpage',
-              arguments: documentSnapshot.data());
-        }
-        else{
-          print('Document not exists on the database');
-        }
-      });
-
-    }
-  }
-
   Future<List<Language>> getLanguages(String query) async {
 
     return userTags
@@ -234,8 +191,6 @@ class _AddTaskState extends State<AddTask> {
     });
 
     userTags = [];
-
-    initDynamicLinks();
 
     FirebaseFirestore.instance
         .collection('users')

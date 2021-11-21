@@ -28,6 +28,7 @@ import './screens/Authentication/login.dart';
 import './screens/Authentication/signup.dart';
 import 'initPage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:after_layout/after_layout.dart';
 
 
 Future<void> main() async {
@@ -65,7 +66,7 @@ class Wrapper extends StatefulWidget {
   _WrapperState createState() => _WrapperState();
 }
 
-class _WrapperState extends State<Wrapper> {
+class _WrapperState extends State<Wrapper>{
 
   final ValueNotifier<bool> isDeviceConnected = ValueNotifier(false);
   dynamic taskDoc, notificationChangeUser;
@@ -86,7 +87,6 @@ class _WrapperState extends State<Wrapper> {
         isDeviceConnected.value = false;
       }
     });
-
 
     return ValueListenableBuilder(
         valueListenable: isDeviceConnected,
@@ -169,6 +169,7 @@ class _WrapperState extends State<Wrapper> {
         }
     );
   }
+
 }
 
 
@@ -199,9 +200,8 @@ class RouteGenerator {
        case '/completed':
         return MaterialPageRoute(builder: (_) => CompletedTask());
        case '/categorytask':
-        return MaterialPageRoute(builder: (_) => CategoryTask());
+        return MaterialPageRoute(builder: (_) => CategoryTask(category: args.toString(),));
       case '/taskpage':
-        print("args = $args");
         return MaterialPageRoute(builder: (_) => TaskPage(id: args.toString(),));
       case '/groups':
         return MaterialPageRoute(builder: (_) => Groups());
@@ -220,10 +220,50 @@ class RouteGenerator {
     return MaterialPageRoute(builder: (_) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Error'),
+          backgroundColor: mediumPurple,
+          title: Image.asset(
+            'images/Logo.jpg',
+            height: 40,
+          ),
+          centerTitle: true,
+          actions: [
+            PopupMenuButton(
+                icon: Icon(
+                  Icons.filter_alt,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: TextButton.icon(
+                        onPressed: null,
+                        icon: Icon(Icons.navigate_before_outlined),
+                        label: Text(
+                          "Sort by",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15.0
+                          ),
+                        )
+                    ),
+                    value: 1,
+                    onTap: null,
+                  ),
+                  PopupMenuItem(
+                    child: Text("Tags"),
+                    value: 2,
+                    onTap: null,
+                  )
+                ]
+            )
+          ],
         ),
         body: Center(
-          child: Text('ERROR'),
+          child: Container(
+            child: new Image.asset(
+              'images/error.jpg',
+            ),
+          )
         ),
       );
     });

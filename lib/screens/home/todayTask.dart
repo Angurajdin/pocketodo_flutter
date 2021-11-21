@@ -21,6 +21,14 @@ class _TodayTaskState extends State<TodayTask> {
           centerTitle: true,
           titleSpacing: 1.0,
           backgroundColor: mediumPurple,
+          actions: [
+            IconButton(
+              onPressed: (){},
+              icon: Icon(
+                Icons.home_outlined,
+              ),
+            )
+          ],
         ),
         drawer: DrawerPage(),
         body: TaskList(queryString: "today", dataNullMsge: "No task is created for today till now, create a new one by press + button",category: "",),

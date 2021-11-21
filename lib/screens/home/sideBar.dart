@@ -29,7 +29,7 @@ class DrawerPage extends StatelessWidget {
                       // mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Image.asset(
-                          'assets/Logo.jpg',
+                          'images/Logo.jpg',
                           height: 35,
                         ),
                         SizedBox(height: 5.0,),
@@ -38,7 +38,7 @@ class DrawerPage extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.topLeft,
                             child: Image.asset(
-                              'assets/Pocketodo_logo.png',
+                              'images/Pocketodo_logo.png',
                               height: 60.0,
                               width: 60.0,
                             ),
@@ -99,25 +99,25 @@ class DrawerPage extends StatelessWidget {
                       Navigator.pushNamed(context, '/completed');
                     },
                   ),
-                  ListTile(
-                    dense: true,
-                    horizontalTitleGap: 0.0,
-                    title: Text(
-                      "Assigned to you",
-                      style: TextStyle(
-                          color: textColorDarkPurple,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600
-                      ),
-                    ),
-                    leading: Icon(
-                      Icons.person,
-                      color: textColorDarkPurple,
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                  // ListTile(
+                  //   dense: true,
+                  //   horizontalTitleGap: 0.0,
+                  //   title: Text(
+                  //     "Assigned to you",
+                  //     style: TextStyle(
+                  //         color: textColorDarkPurple,
+                  //         fontSize: 16.0,
+                  //         fontWeight: FontWeight.w600
+                  //     ),
+                  //   ),
+                  //   leading: Icon(
+                  //     Icons.person,
+                  //     color: textColorDarkPurple,
+                  //   ),
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //   },
+                  // ),
                   ListTile(
                     dense: true,
                     horizontalTitleGap: 0.0,

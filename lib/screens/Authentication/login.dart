@@ -45,7 +45,7 @@ class _LoginState extends State<Login>  {
               children: <Widget>[
                 SizedBox(height: 40.0,),
                 Image.asset(
-                  'assets/logodark.jpg',
+                  'images/logodark.jpg',
                   height: 50.0,
                   width: 400.0,
                 ),
@@ -278,7 +278,7 @@ class _LoginState extends State<Login>  {
                       ),
                     ),
                     icon: Image.asset(
-                      "assets/glogo.jpg",
+                      "images/glogo.jpg",
                       width: 40.0,
                       height: 40.0,
                     ),

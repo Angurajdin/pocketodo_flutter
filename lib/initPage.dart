@@ -21,7 +21,7 @@ class initPage extends StatelessWidget {
             children: <Widget>[
               Spacer(flex: 3,),
               Image.asset(
-                'assets/Logo.jpg',
+                'images/Logo.jpg',
                 height: 50.0,
                 width: 400.0,
               ),
@@ -49,7 +49,7 @@ class initPage extends StatelessWidget {
               ),
               Spacer(),
               Image.asset(
-                "assets/welcome.jpg",
+                "images/welcome.jpg",
                 height: 300.0,
                 width: 300.0,
               ),

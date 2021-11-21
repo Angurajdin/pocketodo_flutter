@@ -46,6 +46,7 @@ dependencies:
   percent_indicator: ^3.4.0
   connectivity_plus: ^2.0.2
   share_plus: ^3.0.4
+  after_layout: ^1.1.0
   internet_connection_checker: ^0.0.1+3
   firebase_dynamic_links: ^3.0.1
   flutter_speed_dial: "^4.6.6"
@@ -61,7 +62,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/Pocketodo_logo.png"
+  image_path: "images/Pocketodo_logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -74,14 +75,14 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
+  # To add images to your application, add an images section, like this:
   assets:
-    - assets/
+    - images/Logo.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
-  # For details regarding adding assets from package dependencies, see
+  # For details regarding adding images from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
   # To add custom fonts to your application, add a fonts section here,
