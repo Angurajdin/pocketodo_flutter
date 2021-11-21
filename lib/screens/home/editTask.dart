@@ -62,7 +62,10 @@ void Notify(selectedDateTime, id, taskData) async{
 
 
 class EditTask extends StatefulWidget {
-  const EditTask({Key? key}) : super(key: key);
+
+  Map<String, dynamic> data;
+
+  EditTask({required this.data});
 
   @override
   _EditTaskState createState() => _EditTaskState();
@@ -117,17 +120,17 @@ class _EditTaskState extends State<EditTask> {
       "tags": selectedTags,
       "permission": permission,
       "modifiedAt": DateTime.now(),
-      "deleted": data['deleted'],
-      "important": data['important'],
+      "deleted": widget.data['deleted'],
+      "important": widget.data['important'],
     };
 
     return taskCollectionRef
-        .doc(data['id'])
+        .doc(widget.data['id'])
         .update(taskData)
         .then((value) async{
       // task added
 
-        Notify(selectedDateTime, data['id'], {...taskData});
+        Notify(selectedDateTime, widget.data['id'], {...taskData});
         Navigator.pop(context);
         Navigator.pop(context);
 
@@ -154,6 +157,16 @@ class _EditTaskState extends State<EditTask> {
 
   @override
   void initState() {
+
+    title.text = widget.data['title'];
+    _currentSliderValue = widget.data['priority'].toDouble();
+    selectedDateTime = widget.data['datetime'].toDate();
+    permission = widget.data['permission'];
+    description = widget.data['description'];
+    link = widget.data['link'];
+    widget.data['tags'].forEach((val){
+      _selectedLanguages.add(Language(name: val));
+    });
 
     focusNode2.addListener(() {
       if(focusNode2.hasFocus)
@@ -218,37 +231,22 @@ class _EditTaskState extends State<EditTask> {
   @override
   Widget build(BuildContext context) {
 
-    if(data==null){
-      data = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-
-      title.text = data['title'];
-      _currentSliderValue = data['priority'].toDouble();
-      selectedDateTime = data['datetime'].toDate();
-      permission = data['permission'];
-      description = data['description'];
-      link = data['link'];
-      data['tags'].forEach((val){
-        _selectedLanguages.add(Language(name: val));
-      });
-
-    }
-
     Future<void> editDiscard()async{
       selectedTags = [];
       List<String> dbTags = [];
       for(dynamic a in _selectedLanguages){
         selectedTags.add(a.name.toString());
       }
-      for(String a in data['tags']){
+      for(String a in widget.data['tags']){
         dbTags.add(a.toString());
       }
       int datetimeLen = selectedDateTime.millisecondsSinceEpoch.toString().length;
       Function eq = const ListEquality().equals;
 
 
-      if(title.text.toString()==data['title'] && description==data['description'] &&
-          _currentSliderValue==data['priority'] && link==data['link'] && data['permission']==permission &&
-          selectedDateTime.millisecondsSinceEpoch.toString().substring(0, datetimeLen-3) == data['datetime'].seconds.toString() &&
+      if(title.text.toString()==widget.data['title'] && description==widget.data['description'] &&
+          _currentSliderValue==widget.data['priority'] && link==widget.data['link'] && widget.data['permission']==permission &&
+          selectedDateTime.millisecondsSinceEpoch.toString().substring(0, datetimeLen-3) == widget.data['datetime'].seconds.toString() &&
           eq(selectedTags, dbTags)){
         Navigator.pop(context);
       }
@@ -280,15 +278,15 @@ class _EditTaskState extends State<EditTask> {
         for(dynamic a in _selectedLanguages){
           selectedTags.add(a.name.toString());
         }
-        for(String a in data['tags']){
+        for(String a in widget.data['tags']){
           dbTags.add(a.toString());
         }
         int datetimeLen = selectedDateTime.millisecondsSinceEpoch.toString().length;
         Function eq = const ListEquality().equals;
 
-        if(title.text.toString()==data['title'] && description==data['description'] &&
-            _currentSliderValue==data['priority'] && link==data['link'] && data['permission']==permission &&
-            selectedDateTime.millisecondsSinceEpoch.toString().substring(0, datetimeLen-3) == data['datetime'].seconds.toString() &&
+        if(title.text.toString()==widget.data['title'] && description==widget.data['description'] &&
+            _currentSliderValue==widget.data['priority'] && link==widget.data['link'] && widget.data['permission']==permission &&
+            selectedDateTime.millisecondsSinceEpoch.toString().substring(0, datetimeLen-3) == widget.data['datetime'].seconds.toString() &&
             eq(selectedTags, dbTags)){
           returnCond = true;
         }

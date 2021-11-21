@@ -199,6 +199,7 @@ class _SignupState extends State<Signup> {
                               "tasks": [],
                               "assigned": [],
                               "groupTasks": [],
+                              "notifications": [],
                               "tags": ['Work', 'Personal', 'Shopping', 'Learning', 'Wish List', 'Fitness', 'Birthday'],
                               "declined": []
                           })

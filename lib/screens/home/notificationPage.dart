@@ -21,34 +21,14 @@ class NotificationPage extends StatelessWidget {
         builder: (context) => Scaffold(
           appBar: AppBar(
             backgroundColor: mediumPurple,
-            title: Image.asset(
-              'assets/Logo.jpg',
-              height: 40,
+            title: Text(
+              "Notifications",
+              style: TextStyle(
+                fontSize: 25.0,
+                fontWeight: FontWeight.w600
+              ),
             ),
             centerTitle: true,
-            actions: <IconButton>[
-              IconButton(
-                  onPressed: (){
-                    PopupMenuButton(
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            child: Text("First"),
-                            value: 1,
-                          ),
-                          PopupMenuItem(
-                            child: Text("Second"),
-                            value: 2,
-                          )
-                        ]
-                    );
-                  },
-                  icon: Icon(
-                    Icons.filter_alt,
-                    color: Colors.white,
-                    size: 30,
-                  )
-              )
-            ],
           ),
           drawer: DrawerPage(),
           floatingActionButton: FloatingActionButton(
@@ -75,7 +55,6 @@ class NotificationPage extends StatelessWidget {
 }
 
 
-
 class NotificationPageData extends StatefulWidget {
   const NotificationPageData({Key? key}) : super(key: key);
 
@@ -83,41 +62,87 @@ class NotificationPageData extends StatefulWidget {
   _NotificationPageDataState createState() => _NotificationPageDataState();
 }
 
-class _NotificationPageDataState extends State<NotificationPageData> {
+class _NotificationPageDataState extends State<NotificationPageData>{
 
-  final yesterday = DateTime(
-      DateTime
-          .now()
-          .year, DateTime
-      .now()
-      .month, DateTime
-      .now()
-      .day - 1);
-  final tomorrow = DateTime(
-      DateTime
-          .now()
-          .year, DateTime
-      .now()
-      .month, DateTime
-      .now()
-      .day + 1);
-  final DateFormat dateMonthYear = DateFormat('yyyy-MM-dd');
   final DateFormat time = DateFormat('jm');
-  late Map<String, dynamic> data;
-  List<Widget> childs = [];
-  Stream<QuerySnapshot> queryCondition = FirebaseFirestore.instance
-      .collection('tasks')
-      .where("createdBy", isEqualTo: FirebaseAuth.instance.currentUser!.email)
-      .where("deleted", isEqualTo: false)
-      .orderBy('datetime', descending: true)
-      .snapshots();
+  Stream documentStream = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.email).snapshots();
+
+
+
+  Future<void> requestAction(Map<String, dynamic> data, int index, String action) async{
+
+    dynamic currentUserData = await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.email).get();
+    dynamic notificationChangeUser = await FirebaseFirestore.instance.collection('users').doc(data['emailid']).get();
+
+    List<dynamic> updatedNotfication = await currentUserData.data()['notifications'];
+
+    if(action=="accept"){
+      updatedNotfication[index] =
+        {
+          "type": "acceptUser",
+          "emailid": data['emailid'],
+          "userName": data['userName'],
+          "taskId": data['taskId'],
+          "taskName": data['taskName'],
+          "dateTime": DateTime.now()
+        };
+    }
+    else{
+      updatedNotfication[index] =
+        {
+          "type": "declineUser",
+          "emailid": data['emailid'],
+          "userName": data['userName'],
+          "taskId": data['taskId'],
+          "taskName": data['taskName'],
+          "dateTime": DateTime.now()
+        };
+    }
+
+    await FirebaseFirestore.instance.collection('users').doc(await FirebaseAuth.instance.currentUser!.email).update({
+      "notifications": [...updatedNotfication]
+    });
+
+    if(action=="accept"){
+      await FirebaseFirestore.instance.collection('users').doc(data['emailid']).update(
+          {
+            "notifications": [
+              {
+                "type": "accepted",
+                "emailid": await FirebaseAuth.instance.currentUser!.email,
+                "userName": await FirebaseAuth.instance.currentUser!.displayName,
+                "taskId": data['taskId'],
+                "taskName": data['taskName'],
+                "dateTime": DateTime.now()
+              }, ...notificationChangeUser.data()['notifications']
+            ]}
+      );
+    }
+    else{
+      await FirebaseFirestore.instance.collection('users').doc(data['emailid']).update(
+          {
+            "notifications": [
+              {
+                "type": "declined",
+                "emailid": await FirebaseAuth.instance.currentUser!.email,
+                "userName": await FirebaseAuth.instance.currentUser!.displayName,
+                "taskId": data['taskId'],
+                "taskName": data['taskName'],
+                "dateTime": DateTime.now()
+              }, ...notificationChangeUser.data()['notifications']
+            ]}
+      );
+    }
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
 
-    return StreamBuilder<QuerySnapshot>(
-        stream: queryCondition,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+    return StreamBuilder(
+        stream: documentStream,
+        builder: (BuildContext context, AsyncSnapshot snapshot){
           if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -132,7 +157,7 @@ class _NotificationPageDataState extends State<NotificationPageData> {
             return Loading();
           }
 
-          if (snapshot.hasData && snapshot.data!.docs.length == 0) {
+          if (snapshot.hasData && snapshot.data.data()['notifications'].length == 0) {
             return Center(
               child: Text(
                 "You have no Notification",
@@ -143,30 +168,38 @@ class _NotificationPageDataState extends State<NotificationPageData> {
           }
 
           return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
+            itemCount: snapshot.data.data()['notifications'].length,
             itemBuilder: (context, index){
-              data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-              childs = [];
-              for(var i in data['requested']){
-                childs.add(new Container(
-                  decoration: BoxDecoration(
-                    color: lightPurple
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+              Map<String, dynamic> data = snapshot.data.data()['notifications'][index] as Map<String, dynamic>;
+
+              return Column(
+                children: <Widget>[
+                  data['type']=="request" ? Container(
+                  color: lightPurple,
                   child: Row(
                     children: <Widget>[
+                      SizedBox(width: 15.0,),
                       Flexible(
                         fit: FlexFit.tight,
                         flex: 7,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            Text("${i['emailid']} has requested for a task ${data['title']}"),
+                            SizedBox(height: 10.0,),
+                            Text(
+                              "${data['userName']} has requested for a task ${data['taskName']}",
+                              style: TextStyle(
+                                fontSize: 16.0,
+                              ),
+                            ),
+                            SizedBox(height: 3.0,),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
+                                SizedBox(width: 20.0,),
                                 TextButton(
-                                  onPressed: (){},
+                                  onPressed: (){
+                                    requestAction(data, index, "decline");
+                                  },
                                   child: Text(
                                     "Decline",
                                     style: TextStyle(
@@ -186,7 +219,9 @@ class _NotificationPageDataState extends State<NotificationPageData> {
                                 ),
                                 SizedBox(width: 20.0,),
                                 ElevatedButton(
-                                  onPressed: (){},
+                                  onPressed: (){
+                                    requestAction(data, index, "accept");
+                                  },
                                   child: Text(
                                     "Accept",
                                     style: TextStyle(
@@ -205,7 +240,8 @@ class _NotificationPageDataState extends State<NotificationPageData> {
                                   ),
                                 ),
                               ],
-                            )
+                            ),
+                            SizedBox(height: 7.0,),
                           ],
                         ),
                       ),
@@ -217,35 +253,218 @@ class _NotificationPageDataState extends State<NotificationPageData> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Text(
-                              CalendarTime(i['requestedDateTime'].toDate()).isTomorrow
-                                  ? "Tomorrow" :
-                              "${timeago.format( i['requestedDateTime'].toDate())}",
-                              style: TextStyle(fontSize: 14.0),
+                              "${timeago.format( data['dateTime'].toDate())}",
+                              style: TextStyle(fontSize: 13.5),
                             ),
+                            SizedBox(height: 5.0,),
                             Text(
                               time.format(
-                                  i['requestedDateTime'].toDate()),
+                                  data['dateTime'].toDate()),
                               style:
-                              TextStyle(fontSize: 14.0),
+                              TextStyle(fontSize: 13.5),
                             )
                           ],
                         ),
                       ),
+                      SizedBox(width: 5.0,),
                     ],
                   )
-                ));
-                childs.add(new SizedBox(height: 20.0,));
-              }
-
-              return Column(
-                children: childs
+              ) :
+                  data['type']=="accepted" ? Container(
+                      color: Colors.white,
+                      child: Row(
+                        children: <Widget>[
+                          SizedBox(width: 15.0,),
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 7,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                SizedBox(height: 10.0,),
+                                Text(
+                                  "${data['userName']} has accepted your request for a task ${data['taskName']}",
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                                SizedBox(height: 7.0,),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            fit: FlexFit.tight,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text(
+                                  "${timeago.format( data['dateTime'].toDate())}",
+                                  style: TextStyle(fontSize: 13.5),
+                                ),
+                                SizedBox(height: 5.0,),
+                                Text(
+                                  time.format(
+                                      data['dateTime'].toDate()),
+                                  style:
+                                  TextStyle(fontSize: 13.5),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 5.0,),
+                        ],
+                      )
+                  ) :
+                  data['type']=="declined" ? Container(
+                      color: Colors.white,
+                      child: Row(
+                        children: <Widget>[
+                          SizedBox(width: 15.0,),
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 7,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                SizedBox(height: 10.0,),
+                                Text(
+                                  "${data['userName']} has declined your request for a task ${data['taskName']}",
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                                SizedBox(height: 7.0,),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            fit: FlexFit.tight,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text(
+                                  "${timeago.format( data['dateTime'].toDate())}",
+                                  style: TextStyle(fontSize: 13.5),
+                                ),
+                                SizedBox(height: 5.0,),
+                                Text(
+                                  time.format(
+                                      data['dateTime'].toDate()),
+                                  style:
+                                  TextStyle(fontSize: 13.5),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 5.0,),
+                        ],
+                      )
+                  ) :
+                  data['type']=="acceptUser" ? Container(
+                      color: Colors.white,
+                      child: Row(
+                        children: <Widget>[
+                          SizedBox(width: 15.0,),
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 7,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                SizedBox(height: 10.0,),
+                                Text(
+                                  "You accepted ${data['userName']} for a task ${data['taskName']}",
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                                SizedBox(height: 7.0,),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            fit: FlexFit.tight,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text(
+                                  "${timeago.format( data['dateTime'].toDate())}",
+                                  style: TextStyle(fontSize: 13.5),
+                                ),
+                                SizedBox(height: 5.0,),
+                                Text(
+                                  time.format(
+                                      data['dateTime'].toDate()),
+                                  style:
+                                  TextStyle(fontSize: 13.5),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 5.0,),
+                        ],
+                      )
+                  ) :
+                  Container(
+                      color: Colors.white,
+                      child: Row(
+                        children: <Widget>[
+                          SizedBox(width: 15.0,),
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 7,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                SizedBox(height: 10.0,),
+                                Text(
+                                  "You declined ${data['userName']} for a task ${data['taskName']}",
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                                SizedBox(height: 7.0,),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            fit: FlexFit.tight,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text(
+                                  "${timeago.format( data['dateTime'].toDate())}",
+                                  style: TextStyle(fontSize: 13.5),
+                                ),
+                                SizedBox(height: 5.0,),
+                                Text(
+                                  time.format(
+                                      data['dateTime'].toDate()),
+                                  style:
+                                  TextStyle(fontSize: 13.5),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 5.0,),
+                        ],
+                      )
+                  ),
+                  Divider(height: 0.0,thickness: 2.5,),
+                ],
               );
             },
           );
         }
     );
-
-
 
   }
 }

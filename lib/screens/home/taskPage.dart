@@ -7,10 +7,16 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter/services.dart';
 import 'package:pocketodo/shared/loading.dart';
-import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
 
 
 class TaskPage extends StatefulWidget {
+
+  String id;
+
+  TaskPage({
+      required this.id
+  });
+
   @override
   _TaskPageState createState() => _TaskPageState();
 }
@@ -25,11 +31,7 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
 
-    if(id==null){
-      id = ModalRoute.of(context)!.settings.arguments as String;
-      documentStream = FirebaseFirestore.instance.collection('tasks').doc(id).snapshots();
-    }
-
+    documentStream = FirebaseFirestore.instance.collection('tasks').doc(widget.id).snapshots();
 
     return StreamBuilder<DocumentSnapshot>(
       stream: documentStream,

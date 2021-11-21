@@ -6,7 +6,7 @@ class createDynamicLink {
     String url = "https://pocketodo.page.link";
     final DynamicLinkParameters parameters = DynamicLinkParameters(
       uriPrefix: url,
-      link: Uri.parse('$url/task/$id'),
+      link: Uri.parse('$url/taskpage/$id'),
       androidParameters: AndroidParameters(
         packageName: "com.example.pocketodo",
         minimumVersion: 0,

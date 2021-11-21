@@ -23,18 +23,13 @@ class TodoList extends StatefulWidget {
 class _TodoListState extends State<TodoList> {
 
   var isDialOpen = ValueNotifier<bool>(false);
-  dynamic taskDoc;
+  dynamic taskDoc, notificationChangeUser;
+
 
   @override
   void initState() {
     initDynamicLinks();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    isDialOpen.dispose();
-    super.dispose();
   }
 
   Future<void> initDynamicLinks() async {
@@ -63,7 +58,6 @@ class _TodoListState extends State<TodoList> {
     separatedString.addAll(url.path.split('/'));
     if (separatedString[1] == "task") {
       taskDoc = await FirebaseFirestore.instance.collection('tasks').doc(separatedString[2]).get();
-
       if(taskDoc.data()['permission']=="public" || taskDoc.data()['members'].contains(FirebaseAuth.instance.currentUser!.email)){
         Navigator.pushNamed(context, '/taskpage', arguments: separatedString[2]);
       }
@@ -73,16 +67,23 @@ class _TodoListState extends State<TodoList> {
     }
   }
 
-  Future<void> requestUpdate(String id) async{
-    await FirebaseFirestore.instance.collection('tasks').doc(id).update({
-      "requested":
-      [ ...taskDoc.data()['requested'],
+  Future<void> sendRequest(String id) async{
+    notificationChangeUser = await FirebaseFirestore.instance.collection('users').doc(taskDoc.data()['createdBy']).get();
+
+    await FirebaseFirestore.instance.collection('users').doc(taskDoc.data()['createdBy']).update(
         {
-          "emailid": await FirebaseAuth.instance.currentUser!.email,
-          "requestedDateTime": DateTime.now()
-        }
-      ]
-    });
+          "notifications": [
+            {
+              "type": "request",
+              "emailid": await FirebaseAuth.instance.currentUser!.email,
+              "userName": await FirebaseAuth.instance.currentUser!.displayName,
+              "taskId": taskDoc.data()['id'],
+              "taskName": taskDoc.data()['title'],
+              "dateTime": DateTime.now()
+            }, ...notificationChangeUser.data()['notifications']
+          ]}
+    );
+
   }
 
   Future<dynamic> showAlertMessage(context, String permission, String id) async {
@@ -112,7 +113,7 @@ class _TodoListState extends State<TodoList> {
               duration: Duration(seconds: 4),
               curve: Curves.elasticOut,
               reverseCurve: Curves.linear);
-          requestUpdate(id);
+          sendRequest(id);
         },
         confirmBtnColor: mediumPurple,
         cancelBtnText: 'Cancel',
@@ -124,6 +125,7 @@ class _TodoListState extends State<TodoList> {
 
   @override
   Widget build(BuildContext context) {
+
     AwesomeNotifications().isNotificationAllowed().then(
           (isAllowed) {
         if (!isAllowed) {
