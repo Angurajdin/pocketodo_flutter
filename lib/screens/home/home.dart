@@ -14,7 +14,6 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 
 
 class TodoList extends StatefulWidget {
-  const TodoList({Key? key}) : super(key: key);
 
   @override
   _TodoListState createState() => _TodoListState();
@@ -54,9 +53,11 @@ class _TodoListState extends State<TodoList> {
 
   Future<void> handleDynamicLink(Uri url) async{
 
+    print("dy links");
+
     List<String> separatedString = [];
     separatedString.addAll(url.path.split('/'));
-    if (separatedString[1] == "task") {
+    if (separatedString[1] == "taskpage") {
       taskDoc = await FirebaseFirestore.instance.collection('tasks').doc(separatedString[2]).get();
       if(taskDoc.data()['permission']=="public" || taskDoc.data()['members'].contains(FirebaseAuth.instance.currentUser!.email)){
         Navigator.pushNamed(context, '/taskpage', arguments: separatedString[2]);
