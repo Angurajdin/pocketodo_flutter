@@ -9,6 +9,7 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 import 'package:cool_alert/cool_alert.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 final random = new Random();
 
@@ -85,18 +86,17 @@ class _EditTaskState extends State<EditTask> {
   final DateFormat dateMonthYear = DateFormat('dd-MM-yyyy');
   dynamic data = null;
 
-  double _currentSliderValue = 1;
+  double priorityLevel = 1;
   dynamic selectedDateTime;
   String _selectedValuesJson = 'Nothing to show';
   String description = "", link = "", permission="";
-  late List<Language> _selectedLanguages;
   late List<Language> userTags = [];
+  late List<Language> _selectedLanguages=[];
   List<String> selectedTags = [];
   CollectionReference taskCollectionRef = FirebaseFirestore.instance.collection('tasks');
 
 
   Future<List<Language>> getLanguages(String query) async {
-
     return userTags
         .where((lang) => lang.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
@@ -116,7 +116,7 @@ class _EditTaskState extends State<EditTask> {
       "datetime": selectedDateTime,
       "date": dateMonthYear.format(selectedDateTime),
       "link": link.trim(),
-      "priority": _currentSliderValue,
+      "priority": priorityLevel,
       "tags": selectedTags,
       "permission": permission,
       "modifiedAt": DateTime.now(),
@@ -155,24 +155,33 @@ class _EditTaskState extends State<EditTask> {
     });
   }
 
+  Future<void> assignTags() async{
+    for(dynamic i in widget.data['tags']){
+      String tag = i.toString();
+      _selectedLanguages.add(Language(name: tag));
+    }
+  }
+
   @override
   void initState() {
 
     title.text = widget.data['title'];
-    _currentSliderValue = widget.data['priority'].toDouble();
+    priorityLevel = widget.data['priority'].toDouble();
     selectedDateTime = widget.data['datetime'].toDate();
     permission = widget.data['permission'];
     description = widget.data['description'];
     link = widget.data['link'];
-    widget.data['tags'].forEach((val){
-      _selectedLanguages.add(Language(name: val));
+
+    assignTags().whenComplete((){
+      setState(() {});
     });
 
     focusNode2.addListener(() {
       if(focusNode2.hasFocus)
         inpuFieldsFocus = false;
-      else
+      else{
         inpuFieldsFocus = true;
+      }
     });
     focusNodeDesc2.addListener(() {
       if(focusNodeDesc2.hasFocus)
@@ -210,8 +219,6 @@ class _EditTaskState extends State<EditTask> {
       }
     });
     super.initState();
-    _selectedLanguages = [];
-
   }
 
   @override
@@ -245,7 +252,7 @@ class _EditTaskState extends State<EditTask> {
 
 
       if(title.text.toString()==widget.data['title'] && description==widget.data['description'] &&
-          _currentSliderValue==widget.data['priority'] && link==widget.data['link'] && widget.data['permission']==permission &&
+          priorityLevel==widget.data['priority'] && link==widget.data['link'] && widget.data['permission']==permission &&
           selectedDateTime.millisecondsSinceEpoch.toString().substring(0, datetimeLen-3) == widget.data['datetime'].seconds.toString() &&
           eq(selectedTags, dbTags)){
         Navigator.pop(context);
@@ -309,7 +316,7 @@ class _EditTaskState extends State<EditTask> {
         Function eq = const ListEquality().equals;
 
         if(title.text.toString()==widget.data['title'] && description==widget.data['description'] &&
-            _currentSliderValue==widget.data['priority'] && link==widget.data['link'] && widget.data['permission']==permission &&
+            priorityLevel==widget.data['priority'] && link==widget.data['link'] && widget.data['permission']==permission &&
             selectedDateTime.millisecondsSinceEpoch.toString().substring(0, datetimeLen-3) == widget.data['datetime'].seconds.toString() &&
             eq(selectedTags, dbTags)){
           returnCond = true;
@@ -470,20 +477,23 @@ class _EditTaskState extends State<EditTask> {
                             style: formTextInputStyle,
                           ),
                           Expanded(
-                            child: Slider(
-                                focusNode: focusNodeSlider2,
-                                value: _currentSliderValue,
-                                min: 1,
-                                max: 10,
-                                divisions: 9,
-                                activeColor: darkPurple,
-                                inactiveColor: mediumPurple,
-                                label: _currentSliderValue.round().toString(),
-                                onChanged: (double value) {
-                                  setState(() {
-                                    _currentSliderValue = value;
-                                  });
-                                }
+                            child: SfSlider(
+                              min: 0.0,
+                              max: 10.0,
+                              stepSize: 1.0,
+                              value: priorityLevel,
+                              activeColor: darkPurple,
+                              inactiveColor: mediumPurple,
+                              interval: 2,
+                              showTicks: true,
+                              showLabels: true,
+                              enableTooltip: true,
+                              minorTicksPerInterval: 1,
+                              onChanged: (dynamic value){
+                                setState(() {
+                                  priorityLevel = value;
+                                });
+                              },
                             ),
                           ),
                         ],

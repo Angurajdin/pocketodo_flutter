@@ -12,6 +12,8 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 
+import 'package:syncfusion_flutter_sliders/sliders.dart';
+
 
 final random = new Random();
 
@@ -85,11 +87,11 @@ class _AddTaskState extends State<AddTask> {
   final format = DateFormat("dd-MM-yyyy HH:mm");
   final DateFormat dateMonthYear = DateFormat('dd-MM-yyyy');
   
-  double _currentSliderValue = 1;
+  double priorityLevel = 1;
   dynamic selectedDateTime;
   String _selectedValuesJson = 'Nothing to show';
   String description = "", link = "", permission="private";
-  late final List<Language> _selectedLanguages;
+  late List<Language> _selectedLanguages=[];
   late List<Language> userTags = [];
   List<String> selectedTags = [];
   CollectionReference taskCollectionRef = FirebaseFirestore.instance.collection('tasks');
@@ -115,7 +117,7 @@ class _AddTaskState extends State<AddTask> {
       "datetime": selectedDateTime,
       "date": dateMonthYear.format(selectedDateTime),
       "link": link.trim(),
-      "priority": _currentSliderValue,
+      "priority": priorityLevel,
       "tags": selectedTags,
       "members": [FirebaseAuth.instance.currentUser!.email],
       "membersPermission": ["edit"],
@@ -340,20 +342,23 @@ class _AddTaskState extends State<AddTask> {
                           style: formTextInputStyle,
                         ),
                         Expanded(
-                          child: Slider(
-                              focusNode: focusNodeSlider,
-                              value: _currentSliderValue,
-                              min: 1,
-                              max: 10,
-                              divisions: 9,
-                              activeColor: darkPurple,
-                              inactiveColor: mediumPurple,
-                              label: _currentSliderValue.round().toString(),
-                              onChanged: (double value) {
-                                setState(() {
-                                  _currentSliderValue = value;
-                                });
-                              }
+                          child: SfSlider(
+                            min: 0.0,
+                            max: 10.0,
+                            stepSize: 1.0,
+                            value: priorityLevel,
+                            activeColor: darkPurple,
+                            inactiveColor: mediumPurple,
+                            interval: 2,
+                            showTicks: true,
+                            showLabels: true,
+                            enableTooltip: true,
+                            minorTicksPerInterval: 1,
+                            onChanged: (dynamic value){
+                              setState(() {
+                                priorityLevel = value;
+                              });
+                            },
                           ),
                         ),
                       ],

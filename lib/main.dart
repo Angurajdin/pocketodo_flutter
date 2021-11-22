@@ -5,7 +5,6 @@ import 'package:cool_alert/cool_alert.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-// import 'package:overlay_support/overlay_support.dart';
 import 'package:pocketodo/screens/Authentication/login.dart';
 import 'package:pocketodo/screens/home/CategoryPage.dart';
 import 'package:pocketodo/screens/home/addtask.dart';
