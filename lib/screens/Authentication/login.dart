@@ -1,11 +1,8 @@
 import 'package:pocketodo/screens/Authentication/signup.dart';
-import 'package:pocketodo/screens/home/home.dart';
 import 'package:pocketodo/shared/loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pocketodo/shared/constants.dart';
-// import 'package:provider/provider.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 class Login extends StatefulWidget {
@@ -113,42 +110,94 @@ class _LoginState extends State<Login>  {
                   children: <Widget>[
                     TextButton(
                         onPressed: () async{
-                          Alert(
+                          showDialog(
                               context: context,
-                              title: "Find your Account",
-                              content: Column(
-                                children: <Widget>[
-                                  TextField(
-                                    onChanged: (val) {
-                                      setState(() => resendEmail = val);
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Find your Account'),
+                                  content: TextField(
+                                    onChanged: (value) {
+                                      setState(() {
+                                        resendEmail = value;
+                                      });
                                     },
-                                    decoration: InputDecoration(
-                                      icon: Icon(Icons.email_rounded),
-                                      labelText: 'Email address',
-                                    ),
+                                    decoration: InputDecoration(hintText: "Email address"),
                                   ),
-                                ],
-                              ),
-                              buttons: [
-                                DialogButton(
-                                    onPressed: () async{
-                                      if(resendEmail.trim()!=""){
-                                        await auth.sendPasswordResetEmail(email: resendEmail);
-                                        Navigator.pop(context);
-                                      } else{
-                                        Navigator.pop(context);
-                                      }
-                                    },
-                                    child: Text(
-                                      "Confirm",
-                                      style: TextStyle(
-                                          fontSize: 18.0,
-                                          letterSpacing: 1.0,
-                                          color: Colors.white
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          color: mediumPurple,
+                                        ),
                                       ),
-                                    )
-                                )
-                              ]).show();
+                                      style: TextButton.styleFrom(
+                                        side: BorderSide(color: mediumPurple,),
+                                        alignment: Alignment.center,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        backgroundColor: Colors.white
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          Navigator.pop(context);
+                                        });
+                                      },
+                                    ),
+                                    ElevatedButton(
+                                      child: Text(
+                                        "Confirm",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty.all(
+                                            mediumPurple
+                                        ),
+                                        shape: MaterialStateProperty.all(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () async{
+                                        if(resendEmail.trim()!=""){
+                                          try{
+                                            await auth.sendPasswordResetEmail(email: resendEmail);
+                                            Navigator.pop(context);
+                                            showToast('Reset password link has sent to $resendEmail',
+                                                context: context,
+                                                animation: StyledToastAnimation.scale,
+                                                reverseAnimation: StyledToastAnimation.fade,
+                                                position: StyledToastPosition.top,
+                                                animDuration: Duration(seconds: 1),
+                                                duration: Duration(seconds: 5),
+                                                curve: Curves.elasticOut,
+                                                reverseCurve: Curves.linear);
+                                          }on FirebaseAuthException catch (e){
+                                            Navigator.pop(context);
+                                            showToast('${e.message}',
+                                                context: context,
+                                                animation: StyledToastAnimation.scale,
+                                                reverseAnimation: StyledToastAnimation.fade,
+                                                position: StyledToastPosition.top,
+                                                animDuration: Duration(seconds: 1),
+                                                duration: Duration(seconds: 5),
+                                                curve: Curves.elasticOut,
+                                                reverseCurve: Curves.linear);
+                                          }
+                                        } else{
+                                          Navigator.pop(context);
+                                        }
+                                      },
+                                    ),
+
+                                  ],
+                                );
+                              });
                         },
                         child: Text(
                           "Forgot Password ?",

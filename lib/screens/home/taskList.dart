@@ -257,11 +257,25 @@ class _TaskListState extends State<TaskList> {
 
           if (snapshot.hasData && snapshot.data!.docs.length == 0) {
             return Center(
-              child: Text(
-                widget.dataNullMsge,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20.0),
-              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(child: Image.asset(
+                        'images/nothing.png',
+                        height: 300.0,
+                        width: 300.0,
+                      ),)
+                    ],
+                  ),
+                  Text(
+                    widget.dataNullMsge,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                ],
+              )
             );
           }
 

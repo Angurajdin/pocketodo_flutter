@@ -118,7 +118,7 @@ class _AddTaskState extends State<AddTask> {
       "priority": _currentSliderValue,
       "tags": selectedTags,
       "members": [FirebaseAuth.instance.currentUser!.email],
-      "membersPermission": [],
+      "membersPermission": ["edit"],
       "declined": [],
       "requested": [],
       "createdBy": FirebaseAuth.instance.currentUser!.email,

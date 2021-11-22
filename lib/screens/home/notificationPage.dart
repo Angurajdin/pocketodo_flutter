@@ -169,6 +169,13 @@ class _NotificationPageDataState extends State<NotificationPageData>{
     dynamic notificationChangeUser = await FirebaseFirestore.instance.collection('users').doc(data['emailid']).get();
     dynamic taskData = await FirebaseFirestore.instance.collection('tasks').doc(data['taskId']).get();
 
+    List requested = taskData.data()["requested"];
+    requested.remove(data['emailid']);
+
+    await FirebaseFirestore.instance.collection('tasks').doc(data['taskId']).update({
+      "requested": requested
+    });
+
     if(action=="accept"){
       updatedNotfication[index] =
         {
@@ -211,8 +218,9 @@ class _NotificationPageDataState extends State<NotificationPageData>{
             ]}
       );
 
-      await FirebaseFirestore.instance.collection('users').doc(data['emailid']).update({
-        "members": [ data['emailid'], ...taskData.data()['members']]
+      await FirebaseFirestore.instance.collection('tasks').doc(data['taskId']).update({
+        "members": [ data['emailid'], ...taskData.data()['members']],
+        "membersPermission": [ "view", ...taskData.data()['membersPermission']]
       });
 
     }
@@ -273,161 +281,172 @@ class _NotificationPageDataState extends State<NotificationPageData>{
                 children: <Widget>[
                   data['type']=="request" ?
                     Container(
-                    color: lightPurple,
-                        child: Row(
-                          children: <Widget>[
-                            SizedBox(width: 15.0,),
-                            Flexible(
-                                flex: 2,
-                                fit: FlexFit.tight,
-                                child: Image.asset(
-                                    'images/glogo.jpg'
-                                )
-                            ),
-                            Flexible(
-                              fit: FlexFit.tight,
-                              flex: 8,
-                              child: Column(
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: <Widget>[
-                                      Text(
-                                        "${timeago.format( data['dateTime'].toDate())}",
-                                        style: TextStyle(fontSize: 13.5),
-                                      ),
-                                      Text(
-                                        time.format(
-                                            data['dateTime'].toDate()),
-                                        style:
-                                        TextStyle(fontSize: 13.5),
-                                      )
-                                    ],
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: <Widget>[
-                                      SizedBox(height: 10.0,),
-                                      Text(
-                                        "${data['userName']} has requested for a task ${data['taskName']}",
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                        ),
-                                      ),
-                                      SizedBox(height: 3.0,),
-                                      Row(
-                                        children: <Widget>[
-                                          SizedBox(width: 20.0,),
-                                          TextButton(
-                                            onPressed: (){
-                                              requestAction(data, index, "decline", snapshot.data.data()['notifications']);
-                                            },
-                                            child: Text(
-                                              "Decline",
-                                              style: TextStyle(
-                                                  color: mediumPurple
-                                              ),
-                                            ),
-                                            style: ButtonStyle(
-                                              shape: MaterialStateProperty.all(
-                                                RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                    side: BorderSide(
-                                                      color: mediumPurple,
-                                                    )
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 20.0,),
-                                          ElevatedButton(
-                                            onPressed: (){
-                                              print(snapshot.data.data());
-                                              requestAction(data, index, "accept", snapshot.data.data()['notifications']);
-                                            },
-                                            child: Text(
-                                              "Accept",
-                                              style: TextStyle(
-                                                  color: Colors.white
-                                              ),
-                                            ),
-                                            style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.all(
-                                                  mediumPurple
-                                              ),
-                                              shape: MaterialStateProperty.all(
-                                                RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10.0),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 7.0,),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 5.0,),
-                          ],
-                        )
-                    ) :
-                    Container(
                       color: lightPurple,
                       child: Row(
                         children: <Widget>[
                           SizedBox(width: 15.0,),
-                          Flexible(
-                              flex: 3,
-                              fit: FlexFit.tight,
-                              child: Image.asset('images/Pocketodo_logo.jpg')
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(25.0),
+                            child: Image.asset(
+                              'images/Avatar1.jpg',
+                              height: 50.0,
+                              width: 50.0,
+                              fit: BoxFit.fill,
+                            ),
                           ),
+                          SizedBox(width: 10.0,),
                           Flexible(
                             fit: FlexFit.tight,
-                            flex: 7,
                             child: Column(
                               children: <Widget>[
+                                SizedBox(height: 12.0,),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(
                                       "${timeago.format( data['dateTime'].toDate())}",
                                       style: TextStyle(fontSize: 13.5),
                                     ),
                                     Text(
-                                      time.format(
-                                          data['dateTime'].toDate()),
-                                      style:
-                                      TextStyle(fontSize: 13.5),
-                                    )
+                                      time.format(data['dateTime'].toDate()),
+                                      style: TextStyle(fontSize: 13.5),
+                                      textAlign: TextAlign.end,
+                                    ),
                                   ],
                                 ),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: <Widget>[
-                                    SizedBox(height: 10.0,),
+                                    SizedBox(height: 5.0,),
                                     Text(
-                                      data['type']=="accepted" ?
-                                      "${data['userName']} has accepted your request for a task ${data['taskName']}" :
-                                      data['type']=="declined" ?
-                                      "${data['userName']} has declined your request for a task ${data['taskName']}" :
-                                      data['type']=="acceptUser" ?
-                                      "You accepted ${data['userName']} for a task ${data['taskName']}" :
-                                      "You declined ${data['userName']} for a task ${data['taskName']}",
-
+                                      "${data['userName']} has requested for a task ${data['taskName']}",
                                       style: TextStyle(
                                         fontSize: 16.0,
                                       ),
                                     ),
-                                    SizedBox(height: 10.0,),
+                                    SizedBox(height: 1.0,),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        TextButton(
+                                          onPressed: (){
+                                            requestAction(data, index, "decline", snapshot.data.data()['notifications']);
+                                          },
+                                          child: Text(
+                                            "Decline",
+                                            style: TextStyle(
+                                              color: mediumPurple,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          style: TextButton.styleFrom(
+                                            padding: EdgeInsets.zero,
+                                            side: BorderSide(color: mediumPurple,),
+                                            alignment: Alignment.center,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(5),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 15.0,),
+                                        ElevatedButton(
+                                          onPressed: (){
+                                            print(snapshot.data.data());
+                                            requestAction(data, index, "accept", snapshot.data.data()['notifications']);
+                                          },
+                                          child: Text(
+                                            "Accept",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          style: ButtonStyle(
+                                            backgroundColor: MaterialStateProperty.all(
+                                                mediumPurple
+                                            ),
+                                            shape: MaterialStateProperty.all(
+                                              RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(6.0),
+                                              ),
+                                            ),
+                                            padding: MaterialStateProperty.all<EdgeInsets>(
+                                              EdgeInsets.zero
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 7.0,),
                                   ],
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(width: 5.0,),
+                          SizedBox(width: 20.0,),
+                        ],
+                      )
+                  ) :
+                    Container(
+                      color: lightPurple,
+                      child: Row(
+                        children: <Widget>[
+                          SizedBox(width: 15.0,),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(25.0),
+                            child: Image.asset(
+                              'images/Avatar1.jpg',
+                              height: 50.0,
+                              width: 50.0,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                          SizedBox(width: 10.0,),
+                          Flexible(
+                            fit: FlexFit.tight,
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(height: 12.0,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      "${timeago.format( data['dateTime'].toDate())}",
+                                      style: TextStyle(fontSize: 13.5),
+                                    ),
+                                    Text(
+                                      time.format(data['dateTime'].toDate()),
+                                      style: TextStyle(fontSize: 13.5),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    SizedBox(height: 5.0,),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        data['type']=="accepted" ?
+                                        "${data['userName']} has accepted your request for a task ${data['taskName']}" :
+                                        data['type']=="declined" ?
+                                        "${data['userName']} has declined your request for a task ${data['taskName']}" :
+                                        data['type']=="acceptUser" ?
+                                        "You accepted ${data['userName']} for a task ${data['taskName']}" :
+                                        "You declined ${data['userName']} for a task ${data['taskName']}",
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 12.0,),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 20.0,),
                         ],
                       )
                   ),

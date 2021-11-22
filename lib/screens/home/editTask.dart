@@ -254,14 +254,38 @@ class _EditTaskState extends State<EditTask> {
         CoolAlert.show(
           context: context,
           type: CoolAlertType.confirm,
-          text: 'Want to cancel it',
+          text: 'Do you want to update the changes ?',
           confirmBtnText: 'Discard',
           onConfirmBtnTap: (){
             Navigator.of(context, rootNavigator: true).pop();
             Navigator.pop(context);
           },
           confirmBtnColor: mediumPurple,
-          cancelBtnText: 'Cancel',
+          cancelBtnText: 'Update',
+          onCancelBtnTap: (){
+            if (_formKey.currentState!.validate()) {
+              if(selectedDateTime!=null && selectedDateTime.isAfter(DateTime.now())){
+              Navigator.pushNamed(context, '/loading');
+              FocusScope.of(context).unfocus();
+              updateTask();
+              }
+              else{
+              showToast("Select Valid DateTime to create Task !",
+              context: context,
+              animation: StyledToastAnimation.slideFromTop,
+              reverseAnimation: StyledToastAnimation.slideToTop,
+              position: StyledToastPosition.top,
+              startOffset: Offset(0.0, -3.0),
+              reverseEndOffset: Offset(0.0, -3.0),
+              duration: Duration(seconds: 5),
+              //Animation duration   animDuration * 2 <= duration
+              animDuration: Duration(seconds: 1),
+              curve: Curves.elasticOut,
+              backgroundColor: Colors.redAccent,
+              reverseCurve: Curves.fastOutSlowIn);
+              }
+              }
+          },
           cancelBtnTextStyle: TextStyle(color: Colors.grey[700]),
         );
       }
@@ -302,6 +326,30 @@ class _EditTaskState extends State<EditTask> {
             },
             confirmBtnColor: mediumPurple,
             cancelBtnText: 'Cancel',
+            onCancelBtnTap: (){
+              if (_formKey.currentState!.validate()) {
+                if(selectedDateTime!=null && selectedDateTime.isAfter(DateTime.now())){
+                  Navigator.pushNamed(context, '/loading');
+                  FocusScope.of(context).unfocus();
+                  updateTask();
+                }
+                else{
+                  showToast("Select Valid DateTime to create Task !",
+                      context: context,
+                      animation: StyledToastAnimation.slideFromTop,
+                      reverseAnimation: StyledToastAnimation.slideToTop,
+                      position: StyledToastPosition.top,
+                      startOffset: Offset(0.0, -3.0),
+                      reverseEndOffset: Offset(0.0, -3.0),
+                      duration: Duration(seconds: 5),
+                      //Animation duration   animDuration * 2 <= duration
+                      animDuration: Duration(seconds: 1),
+                      curve: Curves.elasticOut,
+                      backgroundColor: Colors.redAccent,
+                      reverseCurve: Curves.fastOutSlowIn);
+                }
+              }
+            },
             cancelBtnTextStyle: TextStyle(color: Colors.grey[700]),
           );
         }

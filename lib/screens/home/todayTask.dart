@@ -23,15 +23,17 @@ class _TodayTaskState extends State<TodayTask> {
           backgroundColor: mediumPurple,
           actions: [
             IconButton(
-              onPressed: (){},
+              onPressed: (){
+                Navigator.pushNamed(context, '/');
+              },
               icon: Icon(
-                Icons.home_outlined,
+                Icons.home,
               ),
             )
           ],
         ),
         drawer: DrawerPage(),
-        body: TaskList(queryString: "today", dataNullMsge: "No task is created for today till now, create a new one by press + button",category: "",),
+        body: TaskList(queryString: "today", dataNullMsge: "You don't have any tasks due today.\n hey buddy!Chill out and get back soon.", category: "",),
       ),
     );
   }

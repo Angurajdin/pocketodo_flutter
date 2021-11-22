@@ -79,36 +79,28 @@ class _TaskPageState extends State<TaskPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              Flexible(
-                                  flex: 9,
-                                  fit: FlexFit.tight,
-                                  child: Hero(
-                                    tag: "title-${data['id']}",
-                                    child: Text(
-                                      data['title'],
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 20.0,
-                                          letterSpacing: 0.42,
-                                          fontWeight: FontWeight.w900,
-                                          color: mediumPurple
-                                      ),
-                                    ),
-                                  )
-                              ),
-                              Flexible(
-                                flex: 1,
-                                child: IconButton(
-                                    onPressed: (){
-                                      Navigator.pushNamed(context, '/edittask', arguments: data);
-                                    },
-                                    icon: Icon(Icons.edit, size: 27.0,)
+                              Container(),
+                              Text(
+                                "       "+data['title'],
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 20.0,
+                                    letterSpacing: 0.42,
+                                    fontWeight: FontWeight.w900,
+                                    color: mediumPurple
                                 ),
+                              ),
+                              IconButton(
+                                  onPressed: (){
+                                    Navigator.pushNamed(context, '/edittask', arguments: data);
+                                  },
+                                  icon: Icon(Icons.edit, size: 27.0,)
                               ),
                             ],
                           ),
+                          Divider(height: 0.0, thickness: 1.0, color: mediumPurple,),
                           data['description'] != "" ?
                           Column(
                             children: <Widget>[

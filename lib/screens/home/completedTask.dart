@@ -24,7 +24,7 @@ class _CompletedTaskState extends State<CompletedTask> {
           backgroundColor: mediumPurple,
         ),
         drawer: DrawerPage(),
-        body: TaskList(queryString: "completed", dataNullMsge: "No completed till now",category: "",),
+        body: TaskList(queryString: "completed", dataNullMsge: "Your completed list is empty.",category: "",),
       ),
     );
   }

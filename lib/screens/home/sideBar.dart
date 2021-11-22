@@ -154,7 +154,7 @@ class DrawerPage extends StatelessWidget {
                       color: textColorDarkPurple,
                     ),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/profile');
                     },
                   ),
                   ListTile(

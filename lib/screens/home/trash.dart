@@ -25,7 +25,7 @@ class _TrashPageState extends State<TrashPage> {
           backgroundColor: mediumPurple,
         ),
         drawer: DrawerPage(),
-        body: TaskList(queryString: "trash", dataNullMsge: "Trash is Empty",category: "",),
+        body: TaskList(queryString: "trash", dataNullMsge: "Your trash is empty",category: "",),
       ),
     );
   }

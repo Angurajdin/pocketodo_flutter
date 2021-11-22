@@ -16,6 +16,7 @@ import 'package:pocketodo/screens/home/groups.dart';
 import 'package:pocketodo/screens/home/importantTasks.dart';
 import 'package:pocketodo/screens/home/notificationPage.dart';
 import 'package:pocketodo/screens/home/home.dart';
+import 'package:pocketodo/screens/home/profile.dart';
 import 'package:pocketodo/screens/home/taskPage.dart';
 import 'package:pocketodo/screens/home/todayTask.dart';
 import 'package:pocketodo/screens/home/trash.dart';
@@ -28,7 +29,6 @@ import './screens/Authentication/login.dart';
 import './screens/Authentication/signup.dart';
 import 'initPage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:after_layout/after_layout.dart';
 
 
 Future<void> main() async {
@@ -113,24 +113,6 @@ class _WrapperState extends State<Wrapper>{
                       theme: ThemeData(fontFamily: 'rubik'),
                       initialRoute: '/',
                       onGenerateRoute: RouteGenerator.generateRoute,
-                      // routes: {
-                      //   '/': (context) => TodoList(),
-                      //   '/initpage': (context) => initPage(),
-                      //   '/signup': (context) => Signup(),
-                      //   '/login': (context) => Login(),
-                      //   '/loading': (context) => Loading(),
-                      //   '/addtask': (context) => AddTask(),
-                      //   '/category': (context) => CategoryPage(),
-                      //   '/notification': (context) => NotificationPage(),
-                      //   '/today': (context) => TodayTask(),
-                      //   '/completed': (context) => CompletedTask(),
-                      //   '/categorytask': (context) => CategoryTask(),
-                      //   '/taskpage': (context) => TaskPage(),
-                      //   '/groups': (context) => Groups(),
-                      //   '/trash': (context) => TrashPage(),
-                      //   '/important': (context) => ImportantTaskPage(),
-                      //   '/edittask': (context) => EditTask(),
-                      // },
                     );
                   });
                 }
@@ -148,7 +130,7 @@ class _WrapperState extends State<Wrapper>{
                     ),
                   ),
                   content: const Text(
-                    'Please, connect with the internet'
+                    "Check your phone's internet connection and try again."
                   ),
                   actions: <Widget>[
                     TextButton(
@@ -156,7 +138,7 @@ class _WrapperState extends State<Wrapper>{
                         setState(() {});
                       },
                       child: const Text(
-                          'Try again',
+                          "ok",
                         style: TextStyle(
                           color: mediumPurple,
                         ),
@@ -211,6 +193,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => EditTask(data: args as Map<String, dynamic>,));
       case '/important':
         return MaterialPageRoute(builder: (_) => ImportantTaskPage());
+      case '/profile':
+        return MaterialPageRoute(builder: (_) => Profile());
       default:
         return _errorRoute();
     }

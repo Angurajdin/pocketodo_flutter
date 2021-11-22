@@ -11,7 +11,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:after_layout/after_layout.dart';
 
 class TodoList extends StatefulWidget {
 
@@ -54,12 +53,24 @@ class _TodoListState extends State<TodoList>{
     List<String> separatedString = [];
     separatedString.addAll(url.path.split('/'));
     if (separatedString[1] == "taskpage") {
+
       taskDoc = await FirebaseFirestore.instance.collection('tasks').doc(separatedString[2]).get();
-      if(taskDoc.data()['permission']=="public" || taskDoc.data()['members'].contains(FirebaseAuth.instance.currentUser!.email)){
-        Navigator.of(context).pushNamed('/taskpage', arguments: separatedString[2]);
+
+      print(taskDoc.data()['deleted']);
+
+      if(taskDoc.data()['deleted']==true){
+        await showAlertMessage(context, "deleted", separatedString[2]);
       }
-      else {
-        await showAlertMessage(context, taskDoc.data()['permission'], separatedString[2]);
+      else{
+        if(taskDoc.data()['permission']=="public" || taskDoc.data()['members'].contains(FirebaseAuth.instance.currentUser!.email)){
+          Navigator.of(context).pushNamed('/taskpage', arguments: separatedString[2]);
+        }
+        else if(taskDoc.data()['requested'].contains(FirebaseAuth.instance.currentUser!.email)){
+          await showAlertMessage(context, "AlreadyRequested", separatedString[2]);
+        }
+        else {
+          await showAlertMessage(context, taskDoc.data()['permission'], separatedString[2]);
+        }
       }
     }
   }
@@ -81,23 +92,49 @@ class _TodoListState extends State<TodoList>{
           ]}
     );
 
+    await FirebaseFirestore.instance.collection('tasks').doc(taskDoc.data()['id']).update({
+      "requested": [ FirebaseAuth.instance.currentUser!.email, ...taskDoc.data()['requested']]
+    });
+
   }
 
-  Future<dynamic> showAlertMessage(context, String permission, String id) async {
-    if(permission=="private"){
+  Future<dynamic> showAlertMessage(context, String statusType, String id) async {
+
+    if(statusType=="deleted"){
       return CoolAlert.show(
         context: context,
         type: CoolAlertType.warning,
-        text: "it's private, you don't have permission to view this task",
+        text: "You are trying to access a deleted task.",
+        confirmBtnText: 'Okay',
+        confirmBtnColor: mediumPurple,
+      );
+    }
+
+    else if(statusType=="private"){
+      return CoolAlert.show(
+        context: context,
+        type: CoolAlertType.warning,
+        text: "it's private, you don't have permission to view this task.",
         confirmBtnText: 'cancel',
         confirmBtnColor: mediumPurple,
       );
     }
+
+    else if(statusType=="AlreadyRequested"){
+      return CoolAlert.show(
+        context: context,
+        type: CoolAlertType.error,
+        text: "It is a private task/n Access denied",
+        confirmBtnText: 'Okay',
+        confirmBtnColor: mediumPurple,
+      );
+    }
+
     else{
       CoolAlert.show(
         context: context,
         type: CoolAlertType.warning,
-        text: 'You need the permission to view this task',
+        text: 'You need the permission to view this task.',
         confirmBtnText: 'Request',
         onConfirmBtnTap: () async {
           Navigator.of(context, rootNavigator: true).pop();
@@ -269,7 +306,7 @@ class _TodoListState extends State<TodoList>{
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: bottomFloatingNav(currentIndex: 0,),
-          body: TaskList(queryString: "home", dataNullMsge: "No todo has created till now, Create new one by pressing the below + button",category: "",),
+          body: TaskList(queryString: "home", dataNullMsge: "Wow! No task due soon,\n Create one to schedule, track and collaborate with people.",category: "",),
         ),
       ),
     );

@@ -23,7 +23,7 @@ class _ImportantTaskPageState extends State<ImportantTaskPage> {
           backgroundColor: mediumPurple,
         ),
         drawer: DrawerPage(),
-        body: TaskList(queryString: "important", dataNullMsge: "Till now, You haven't set no tasks as important",category: "",),
+        body: TaskList(queryString: "important", dataNullMsge: "Nothing has been marked important so far.",category: "",),
       ),
     );
   }
