@@ -80,7 +80,6 @@ class _AddTaskState extends State<AddTask> {
   var focusNode = FocusNode();
   var focusNodeDesc = FocusNode();
   var focusNodeLink = FocusNode();
-  var focusNodeSlider = FocusNode();
   bool inpuFieldsFocus = true;
   final _formKey = GlobalKey<FormState>();
   TextEditingController title = new TextEditingController();
@@ -185,12 +184,6 @@ class _AddTaskState extends State<AddTask> {
       else
         inpuFieldsFocus = true;
     });
-    focusNodeSlider.addListener(() {
-      if(focusNodeSlider.hasFocus)
-        inpuFieldsFocus = false;
-      else
-        inpuFieldsFocus = true;
-    });
 
     userTags = [];
 
@@ -218,7 +211,6 @@ class _AddTaskState extends State<AddTask> {
     // widget tree.
     focusNode.dispose();
     focusNodeDesc.dispose();
-    focusNodeSlider.dispose();
     focusNodeLink.dispose();
     _selectedLanguages.clear();
     title.dispose();

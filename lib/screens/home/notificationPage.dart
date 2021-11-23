@@ -66,11 +66,12 @@ class NotificationPageData extends StatefulWidget {
 class _NotificationPageDataState extends State<NotificationPageData>{
 
   final DateFormat time = DateFormat('jm');
-  Stream documentStream = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.email).snapshots();
+  late Stream documentStream;
   dynamic taskDoc, notificationChangeUser;
 
   @override
   void initState() {
+    documentStream = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.email).snapshots();
     initDynamicLinks();
     super.initState();
   }
@@ -249,6 +250,10 @@ class _NotificationPageDataState extends State<NotificationPageData>{
     return StreamBuilder(
         stream: documentStream,
         builder: (BuildContext context, AsyncSnapshot snapshot){
+
+          if(snapshot.hasData)
+            print("sn = ${snapshot.data.data()}");
+
           if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -263,197 +268,200 @@ class _NotificationPageDataState extends State<NotificationPageData>{
             return Loading();
           }
 
-          if (snapshot.hasData && snapshot.data.data()['notifications'].length == 0) {
-            return Center(
-              child: Text(
-                "You have no Notification",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20.0),
-              ),
-            );
-          }
+          if (snapshot.hasData && snapshot.data.data()['notifications'].length > 0) {
 
-          return ListView.builder(
-            itemCount: snapshot.data.data()['notifications'].length,
-            itemBuilder: (context, index){
-              Map<String, dynamic> data = snapshot.data.data()['notifications'][index] as Map<String, dynamic>;
-              return Column(
-                children: <Widget>[
-                  data['type']=="request" ?
+            print("data =  ${snapshot.data.data()}");
+
+            return ListView.builder(
+              itemCount: snapshot.data.data()['notifications'].length,
+              itemBuilder: (context, index){
+                Map<String, dynamic> data = snapshot.data.data()['notifications'][index] as Map<String, dynamic>;
+                return Column(
+                  children: <Widget>[
+                    data['type']=="request" ?
                     Container(
-                      color: lightPurple,
-                      child: Row(
-                        children: <Widget>[
-                          SizedBox(width: 15.0,),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(25.0),
-                            child: Image.asset(
-                              'images/Avatar1.jpg',
-                              height: 50.0,
-                              width: 50.0,
-                              fit: BoxFit.fill,
+                        color: lightPurple,
+                        child: Row(
+                          children: <Widget>[
+                            SizedBox(width: 15.0,),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(25.0),
+                              child: Image.asset(
+                                'images/Avatar1.jpg',
+                                height: 50.0,
+                                width: 50.0,
+                                fit: BoxFit.fill,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 10.0,),
-                          Flexible(
-                            fit: FlexFit.tight,
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(height: 12.0,),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(
-                                      "${timeago.format( data['dateTime'].toDate())}",
-                                      style: TextStyle(fontSize: 13.5),
-                                    ),
-                                    Text(
-                                      time.format(data['dateTime'].toDate()),
-                                      style: TextStyle(fontSize: 13.5),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    SizedBox(height: 5.0,),
-                                    Text(
-                                      "${data['userName']} has requested for a task ${data['taskName']}",
-                                      style: TextStyle(
-                                        fontSize: 16.0,
+                            SizedBox(width: 10.0,),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: Column(
+                                children: <Widget>[
+                                  SizedBox(height: 12.0,),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        "${timeago.format( data['dateTime'].toDate())}",
+                                        style: TextStyle(fontSize: 13.5),
                                       ),
-                                    ),
-                                    SizedBox(height: 1.0,),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        TextButton(
-                                          onPressed: (){
-                                            requestAction(data, index, "decline", snapshot.data.data()['notifications']);
-                                          },
-                                          child: Text(
-                                            "Decline",
-                                            style: TextStyle(
-                                              color: mediumPurple,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          style: TextButton.styleFrom(
-                                            padding: EdgeInsets.zero,
-                                            side: BorderSide(color: mediumPurple,),
-                                            alignment: Alignment.center,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(5),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 15.0,),
-                                        ElevatedButton(
-                                          onPressed: (){
-                                            print(snapshot.data.data());
-                                            requestAction(data, index, "accept", snapshot.data.data()['notifications']);
-                                          },
-                                          child: Text(
-                                            "Accept",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          style: ButtonStyle(
-                                            backgroundColor: MaterialStateProperty.all(
-                                                mediumPurple
-                                            ),
-                                            shape: MaterialStateProperty.all(
-                                              RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(6.0),
-                                              ),
-                                            ),
-                                            padding: MaterialStateProperty.all<EdgeInsets>(
-                                              EdgeInsets.zero
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 7.0,),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 20.0,),
-                        ],
-                      )
-                  ) :
-                    Container(
-                      color: lightPurple,
-                      child: Row(
-                        children: <Widget>[
-                          SizedBox(width: 15.0,),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(25.0),
-                            child: Image.asset(
-                              'images/Avatar1.jpg',
-                              height: 50.0,
-                              width: 50.0,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          SizedBox(width: 10.0,),
-                          Flexible(
-                            fit: FlexFit.tight,
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(height: 12.0,),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(
-                                      "${timeago.format( data['dateTime'].toDate())}",
-                                      style: TextStyle(fontSize: 13.5),
-                                    ),
-                                    Text(
-                                      time.format(data['dateTime'].toDate()),
-                                      style: TextStyle(fontSize: 13.5),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    SizedBox(height: 5.0,),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        data['type']=="accepted" ?
-                                        "${data['userName']} has accepted your request for a task ${data['taskName']}" :
-                                        data['type']=="declined" ?
-                                        "${data['userName']} has declined your request for a task ${data['taskName']}" :
-                                        data['type']=="acceptUser" ?
-                                        "You accepted ${data['userName']} for a task ${data['taskName']}" :
-                                        "You declined ${data['userName']} for a task ${data['taskName']}",
+                                      Text(
+                                        time.format(data['dateTime'].toDate()),
+                                        style: TextStyle(fontSize: 13.5),
+                                        textAlign: TextAlign.end,
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: <Widget>[
+                                      SizedBox(height: 5.0,),
+                                      Text(
+                                        "${data['userName']} has requested for a task ${data['taskName']}",
                                         style: TextStyle(
                                           fontSize: 16.0,
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(height: 12.0,),
-                                  ],
-                                ),
-                              ],
+                                      SizedBox(height: 1.0,),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: <Widget>[
+                                          TextButton(
+                                            onPressed: (){
+                                              requestAction(data, index, "decline", snapshot.data.data()['notifications']);
+                                            },
+                                            child: Text(
+                                              "Decline",
+                                              style: TextStyle(
+                                                color: mediumPurple,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            style: TextButton.styleFrom(
+                                              padding: EdgeInsets.zero,
+                                              side: BorderSide(color: mediumPurple,),
+                                              alignment: Alignment.center,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(5),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 15.0,),
+                                          ElevatedButton(
+                                            onPressed: (){
+                                              print(snapshot.data.data());
+                                              requestAction(data, index, "accept", snapshot.data.data()['notifications']);
+                                            },
+                                            child: Text(
+                                              "Accept",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            style: ButtonStyle(
+                                              backgroundColor: MaterialStateProperty.all(
+                                                  mediumPurple
+                                              ),
+                                              shape: MaterialStateProperty.all(
+                                                RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(6.0),
+                                                ),
+                                              ),
+                                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                                  EdgeInsets.zero
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 7.0,),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 20.0,),
-                        ],
-                      )
-                  ),
-                  Divider(height: 0.0,thickness: 2.5,),
-                ],
-              );
-            },
+                            SizedBox(width: 20.0,),
+                          ],
+                        )
+                    ) :
+                    Container(
+                        color: lightPurple,
+                        child: Row(
+                          children: <Widget>[
+                            SizedBox(width: 15.0,),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(25.0),
+                              child: Image.asset(
+                                'images/Avatar1.jpg',
+                                height: 50.0,
+                                width: 50.0,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                            SizedBox(width: 10.0,),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: Column(
+                                children: <Widget>[
+                                  SizedBox(height: 12.0,),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                        "${timeago.format( data['dateTime'].toDate())}",
+                                        style: TextStyle(fontSize: 13.5),
+                                      ),
+                                      Text(
+                                        time.format(data['dateTime'].toDate()),
+                                        style: TextStyle(fontSize: 13.5),
+                                        textAlign: TextAlign.end,
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: <Widget>[
+                                      SizedBox(height: 5.0,),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          data['type']=="accepted" ?
+                                          "${data['userName']} has accepted your request for a task ${data['taskName']}" :
+                                          data['type']=="declined" ?
+                                          "${data['userName']} has declined your request for a task ${data['taskName']}" :
+                                          data['type']=="acceptUser" ?
+                                          "You accepted ${data['userName']} for a task ${data['taskName']}" :
+                                          "You declined ${data['userName']} for a task ${data['taskName']}",
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 12.0,),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 20.0,),
+                          ],
+                        )
+                    ),
+                    Divider(height: 0.0,thickness: 2.5,),
+                  ],
+                );
+              },
+            );
+          }
+
+          return Center(
+            child: Text(
+              "You have no Notification",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20.0),
+            ),
           );
         }
     );

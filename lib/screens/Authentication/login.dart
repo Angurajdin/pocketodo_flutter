@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pocketodo/shared/constants.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -23,6 +25,14 @@ class _LoginState extends State<Login>  {
   String password = '';
 
   FirebaseAuth auth = FirebaseAuth.instance;
+
+  GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );
+
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +93,7 @@ class _LoginState extends State<Login>  {
                 SizedBox(height: 5.0,),
                 TextFormField(
                   obscureText: _isHidden,
+                  textInputAction: TextInputAction.go,
                   decoration:
                   textInputDecoration.copyWith(
                     hintText: "Enter your Password",
@@ -309,10 +320,11 @@ class _LoginState extends State<Login>  {
                 SizedBox(height: 15.0,),
                 ElevatedButton.icon(
                     onPressed: () async {
-                      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                          email: "angu@gmail.com",
-                          password: "123456"
-                      );
+                      try {
+                        await _googleSignIn.signIn();
+                      } catch (error) {
+                        print(error);
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       elevation: 0,

@@ -129,6 +129,7 @@ class _SignupState extends State<Signup> {
                 TextFormField(
                   keyboardType: TextInputType.number,
                   // Only numbers can be entered
+                  textInputAction: TextInputAction.go,
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                   ],
